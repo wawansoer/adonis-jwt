@@ -1,40 +1,47 @@
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
-import { column, beforeSave, BaseModel } from '@ioc:Adonis/Lucid/Orm'
-import {v4 as uuid} from 'uuid';
+import { BaseModel, beforeSave, column } from '@ioc:Adonis/Lucid/Orm'
+import { v4 as uuid } from 'uuid'
 import { beforeCreate } from '@adonisjs/lucid/build/src/Orm/Decorators'
 
 export default class User extends BaseModel {
-  @column({ isPrimary: true })
-  public id: string
+	@column({ isPrimary: true })
+	public id: string
 
-  @column()
-  public email: string
+	@column()
+	public email: string
 
-  @column()
-  public username: string
+	@column()
+	public username: string
 
-  @column()
-  password: string
+	@column()
+	public is_active: boolean
 
-  @column()
-  public rememberMeToken: string | null
+	@column()
+	public is_verified : boolean
 
-  @column.dateTime({ autoCreate: true })
-  public createdAt: DateTime
+	@column({serializeAs: null})
+	public password: string
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
+	@column()
+	public rememberMeToken: string | null
 
-  @beforeSave()
-  public static async hashPassword (user: User) {
-    if (user.$dirty.password) {
-      user.password = await Hash.make(user.password)
-    }
-  }
+	@column.dateTime({ autoCreate: true })
+	public createdAt: DateTime
 
-  @beforeCreate()
-  public static async createUUID (model: User) {
-    model.id = uuid()
-  }
+	@column.dateTime({ autoCreate: true, autoUpdate: true })
+	public updatedAt: DateTime
+
+	@beforeSave()
+	public static async hashPassword(user: User) {
+		if (user.$dirty.password) {
+			user.password = await Hash.make(user.password)
+		}
+	}
+
+	@beforeCreate()
+	public static async createUUID(model: User) {
+		model.id = uuid()
+	}
+
 }
