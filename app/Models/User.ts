@@ -18,9 +18,9 @@ export default class User extends BaseModel {
 	public is_active: boolean
 
 	@column()
-	public is_verified : boolean
+	public is_verified: boolean
 
-	@column({serializeAs: null})
+	@column({ serializeAs: null })
 	public password: string
 
 	@column()
@@ -43,5 +43,4 @@ export default class User extends BaseModel {
 	public static async createUUID(model: User) {
 		model.id = uuid()
 	}
-
 }

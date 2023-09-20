@@ -2,69 +2,83 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { DateTime } from 'luxon'
 import Mail from '@ioc:Adonis/Addons/Mail'
 import Logger from '@ioc:Adonis/Core/Logger'
+import { v4 as uuid } from 'uuid'
+import Database from '@ioc:Adonis/Lucid/Database'
+import Env from '@ioc:Adonis/Core/Env'
+import { generateRandomString } from '../../Helpers/GenerateRandomString'
 import User from '../../Models/User'
 import Token from '../../Models/Token'
 import RegisterValidator from '../../Validators/Auth/RegisterValidator'
-import Database from '@ioc:Adonis/Lucid/Database'
-import Env from '@ioc:Adonis/Core/Env'
 import ForgotPasswordValidator from '../../Validators/Auth/ForgotPasswordValidator'
-import { v4 as uuid } from 'uuid'
+import ApiToken from '../../Models/ApiToken'
 
 export default class AuthController {
-	public async sendToken(user_id: string, user_email: string, user_name: string) {
-
-		const generate_token = uuid()
-		const token = new Token()
-		token.userId = user_id
-		token.token = generate_token
-		token.expiresAt = DateTime.now().plus({ hours: 1 })
-		let base_url = Env.get('FRONT_END_URL')
+	private async generateEmailConfirmationToken(userId: string) {
 		try {
+			const token = new ApiToken()
+			token.userId = userId
+			token.name = 'Email Confirmation'
+			// token.type = 'UUID'
+			token.token = generateRandomString(64)
+			token.expiresAt = DateTime.now().plus({ hours: 1 })
+
 			await token.save()
-			await Mail.send((message) => {
-				message
-					.from(`${Env.get('SMTP_USERNAME')}`)
-					.to(user_email)
-					.subject('Account Verification')
-					.html(
-						`<h3> Welcome Aboard  ${user_name}</h3>
-						<p>
-							Please Confirm Your Email By Click This
-							<a href='${base_url}/verify-email/${user_id}/token/${generate_token}'>Link</a>
-						</p>`,
-					)
-			})
+
+			return token
 		} catch (e) {
 			Logger.error(e)
+			throw new Error('Failed to generate token')
 		}
 	}
 
+	private async sendEmailConfirmation(user: User, token: ApiToken) {
+		const base_url = Env.get('FRONT_END_URL')
+		await Mail.send((message) => {
+			message
+				.from(Env.get('SMTP_USERNAME'))
+				.to(user.email)
+				.subject('Account Verification')
+				.htmlView('emails/welcome.edge', {
+					token: token.token,
+					username: user.username,
+					url: `${base_url}/verify-email/${user.email}?token=${token.token}`,
+				})
+		})
+	}
+
 	public async register({ request, response }: HttpContextContract) {
-
-		let data = await request.validate(RegisterValidator)
-
-		const user = new User()
-		user.email = data.email
-		user.password = data.password
-		user.username = data.username
 		const trx = await Database.transaction()
-
 		try {
-			const data_user = await user.save()
-			await this.sendToken(data_user.id, data_user.email, data_user.username)
+			const data = await request.validate(RegisterValidator)
+
+			const user = new User()
+			user.email = data.email
+			user.password = data.password
+			user.username = data.username
+
+			await user.useTransaction(trx).save()
+
+			const token = await this.generateEmailConfirmationToken(user.id)
+
+			await this.sendEmailConfirmation(user, token)
+
 			await trx.commit()
+
 			return response.status(201).json({
 				success: true,
 				message: 'Successfully registered. Please confirm email to login!',
 				user,
 			})
-		} catch (e) {
+
+		} catch (error) {
+			Logger.error(error)
+
 			await trx.rollback()
-			Logger.error(e)
-			return response.status(500).json({
+
+			return response.status(error.messages ? 400 : 500).json({
 				success: false,
-				message: 'Failed register, please try again !',
-				error: e,
+				message: error.messages ? 'Validation failed' : 'Failed to send email conformation',
+				error: error.messages ? error.messages : error.message,
 			})
 		}
 	}
@@ -81,7 +95,7 @@ export default class AuthController {
 			if (tokenRecord) {
 				const user = await User.findBy('email', email)
 
-				if(user) {
+				if (user) {
 					user.is_verified = true
 					await user.save()
 					return response.status(200).json({
@@ -96,7 +110,6 @@ export default class AuthController {
 				message: 'Failed to activate the account',
 				data: null,
 			})
-
 		} catch (error) {
 			// Handle any errors here, log them, and respond accordingly
 			Logger.error(error)
@@ -107,6 +120,7 @@ export default class AuthController {
 			})
 		}
 	}
+
 	public async resendToken({ request, response }: HttpContextContract) {
 		const params = request.only(['email'])
 
@@ -126,14 +140,13 @@ export default class AuthController {
 			data: null,
 		})
 	}
-	public async reqTokenResetPassword({ request, response }: HttpContextContract) {
 
+	public async reqTokenResetPassword({ request, response }: HttpContextContract) {
 		const params = request.only(['email'])
 
 		const user = await User.findBy('email', params.email)
 
 		if (user) {
-
 			const generate_token = uuid()
 			const token = new Token()
 			token.userId = user.id
@@ -152,7 +165,7 @@ export default class AuthController {
 							Please click this
 							<a href='${base_url}/reset-password/${user.id}/token/${generate_token}'>Link</a>
 							to reset your password
-						</p>`,
+						</p>`
 					)
 			})
 
@@ -169,7 +182,6 @@ export default class AuthController {
 		})
 	}
 	public async updatePassword({ request, response }: HttpContextContract) {
-
 		let data = await request.validate(ForgotPasswordValidator)
 
 		const user = await User.findBy('email', data.email)
@@ -185,7 +197,6 @@ export default class AuthController {
 			success: true,
 			message: `Verification token have sent to ${user.email} !`,
 		})
-
 	}
 
 	public async login({ request, auth }: HttpContextContract) {

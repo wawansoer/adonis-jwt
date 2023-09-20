@@ -6,10 +6,10 @@
  */
 
 import User from '../app/Models/User'
-import { JWTGuardConfig, JWTGuardContract } from "@ioc:Adonis/Addons/Jwt";
+import { JWTGuardConfig, JWTGuardContract } from '@ioc:Adonis/Addons/Jwt'
 
 declare module '@ioc:Adonis/Addons/Auth' {
-  /*
+	/*
   |--------------------------------------------------------------------------
   | Providers
   |--------------------------------------------------------------------------
@@ -21,8 +21,8 @@ declare module '@ioc:Adonis/Addons/Auth' {
   | You can also create and register your own custom providers.
   |
   */
-  interface ProvidersList {
-    /*
+	interface ProvidersList {
+		/*
     |--------------------------------------------------------------------------
     | User Provider
     |--------------------------------------------------------------------------
@@ -34,17 +34,17 @@ declare module '@ioc:Adonis/Addons/Auth' {
     | different Lucid models.
     |
     */
-    user: {
-      implementation: LucidProviderContract<typeof User>
-      config: LucidProviderConfig<typeof User>
-    }
-    user_using_database: {
-      implementation: DatabaseProviderContract<DatabaseProviderRow>,
-      config: DatabaseProviderConfig,
-    };
-  }
+		user: {
+			implementation: LucidProviderContract<typeof User>
+			config: LucidProviderConfig<typeof User>
+		}
+		user_using_database: {
+			implementation: DatabaseProviderContract<DatabaseProviderRow>
+			config: DatabaseProviderConfig
+		}
+	}
 
-  /*
+	/*
   |--------------------------------------------------------------------------
   | Guards
   |--------------------------------------------------------------------------
@@ -59,8 +59,8 @@ declare module '@ioc:Adonis/Addons/Auth' {
   | Every guard needs a provider for looking up users from the database.
   |
   */
-  interface GuardsList {
-    /*
+	interface GuardsList {
+		/*
     |--------------------------------------------------------------------------
     | Web Guard
     |--------------------------------------------------------------------------
@@ -69,12 +69,12 @@ declare module '@ioc:Adonis/Addons/Auth' {
     | the `user` provider for fetching user details.
     |
     */
-    web: {
-      implementation: SessionGuardContract<'user', 'web'>
-      config: SessionGuardConfig<'user'>
-      client: SessionClientContract<'user'>
-    }
-    /*
+		web: {
+			implementation: SessionGuardContract<'user', 'web'>
+			config: SessionGuardConfig<'user'>
+			client: SessionClientContract<'user'>
+		}
+		/*
     |--------------------------------------------------------------------------
     | OAT Guard
     |--------------------------------------------------------------------------
@@ -83,12 +83,12 @@ declare module '@ioc:Adonis/Addons/Auth' {
     | to authenticate requests.
     |
     */
-    api: {
-      implementation: OATGuardContract<'user', 'api'>
-      config: OATGuardConfig<'user'>
-      client: OATClientContract<'user'>
-    }
-    /*
+		api: {
+			implementation: OATGuardContract<'user', 'api'>
+			config: OATGuardConfig<'user'>
+			client: OATClientContract<'user'>
+		}
+		/*
     |--------------------------------------------------------------------------
     | Basic Auth Guard
     |--------------------------------------------------------------------------
@@ -97,14 +97,14 @@ declare module '@ioc:Adonis/Addons/Auth' {
     | the `user` provider for fetching user details.
     |
     */
-    basic: {
-      implementation: BasicAuthGuardContract<'user', 'basic'>
-      config: BasicAuthGuardConfig<'user'>
-      client: BasicAuthClientContract<'user'>
-    }
-    jwt: {
-      implementation: JWTGuardContract<'user', 'api'>,
-      config: JWTGuardConfig<'user'>,
-    };
-  }
+		basic: {
+			implementation: BasicAuthGuardContract<'user', 'basic'>
+			config: BasicAuthGuardConfig<'user'>
+			client: BasicAuthClientContract<'user'>
+		}
+		jwt: {
+			implementation: JWTGuardContract<'user', 'api'>
+			config: JWTGuardConfig<'user'>
+		}
+	}
 }

@@ -21,13 +21,12 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.get('/', async () => {
-  return { hello: 'world' }
+	return { hello: 'world' }
 }).middleware('auth:jwt')
 
 Route.post('/register', 'AuthController.register')
 Route.get('/verify-email', 'AuthController.verifyEmail')
-Route.get('/resend-token', 'AuthController.resendToken')
+Route.post('/resend-token', 'AuthController.resendToken')
 Route.post('/forgot-password', 'AuthController.reqTokenResetPassword')
 Route.post('/verify-token', 'AuthController.verifyToken')
 Route.post('/login', 'AuthController.login')
-
