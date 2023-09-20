@@ -6,12 +6,12 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import Env from '@ioc:Adonis/Core/Env'
 import { generateRandomString } from '../../Helpers/GenerateRandomString'
 import User from '../../Models/User'
-import Token from '../../Models/Token'
-import RegisterValidator from '../../Validators/Auth/RegisterValidator'
 import ApiToken from '../../Models/ApiToken'
+import RegisterValidator from '../../Validators/Auth/RegisterValidator'
+
 
 export default class AuthController {
-	private async generateEmailConfirmationToken(userId: string) {
+	private async generateEmailConfirmationToken(userId: string, trx) {
 		try {
 			const token = new ApiToken()
 			token.userId = userId
@@ -20,7 +20,7 @@ export default class AuthController {
 			token.token = generateRandomString(64)
 			token.expiresAt = DateTime.now().plus({ hours: 1 })
 
-			await token.save()
+			await token.useTransaction(trx).save()
 
 			return token
 		} catch (e) {
@@ -56,7 +56,7 @@ export default class AuthController {
 
 			await user.useTransaction(trx).save()
 
-			const token = await this.generateEmailConfirmationToken(user.id)
+			const token = await this.generateEmailConfirmationToken(user.id, trx)
 
 			await this.sendEmailConfirmation(user, token)
 
@@ -85,7 +85,7 @@ export default class AuthController {
 		try {
 			const { token, email } = request.only(['token', 'email'])
 
-			const tokenRecord = await Token.query()
+			const tokenRecord = await ApiToken.query()
 				.where('token', token)
 				.where('expires_at', '>=', DateTime.now().toString())
 				.firstOrFail()
