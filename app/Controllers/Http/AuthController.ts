@@ -129,25 +129,32 @@ export default class AuthController {
 		}
 	}
 
-	// public async resendToken({ request, response }: HttpContextContract) {
-	// 	const params = request.only(['email'])
-	//
-	// 	const user = await User.findBy('email', params.email)
-	//
-	// 	if (user) {
-	// 		await this.sendToken(user.id, user.email, user.username)
-	// 		return response.status(404).json({
-	// 			success: true,
-	// 			message: `Successfully sent token to ${user.email}`,
-	// 		})
-	// 	}
-	//
-	// 	return response.status(404).json({
-	// 		success: false,
-	// 		message: 'User not found',
-	// 		data: null,
-	// 	})
-	// }
+	public async resendToken({ request, response }: HttpContextContract) {
+
+		const trx = await Database.transaction()
+
+		const params = request.only(['email'])
+
+		if(params.email){
+			const user = await User.findBy('email', params.email)
+
+			if (user) {
+				const token = await this.generateToken(user.id, 'Account Verification',trx, )
+				await this.sendEmail(user, token, 'Account Verification')
+				await trx.commit()
+				return response.status(200).json({
+					success: true,
+					message: `Successfully sent token to ${user.email}`,
+				})
+			}
+		}
+
+		return response.status(400).json({
+			success: false,
+			message: 'User not found',
+		})
+	}
+
 	//
 	// public async reqTokenResetPassword({ request, response }: HttpContextContract) {
 	// 	const params = request.only(['email'])
