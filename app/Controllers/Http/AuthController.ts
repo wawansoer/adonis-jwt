@@ -11,12 +11,12 @@ import RegisterValidator from '../../Validators/Auth/RegisterValidator'
 
 
 export default class AuthController {
-	private async generateEmailConfirmationToken(userId: string, trx) {
+	private async generateToken(userId: string, action: string, trx) {
 		try {
 			const token = new ApiToken()
 			token.userId = userId
-			token.name = 'Email Confirmation'
-			token.type = 'UUID'
+			token.name = action
+			token.type = 'TOKEN 64'
 			token.token = generateRandomString(64)
 			token.expiresAt = DateTime.now().plus({ hours: 1 })
 
@@ -29,17 +29,29 @@ export default class AuthController {
 		}
 	}
 
-	private async sendEmailConfirmation(user: User, token: ApiToken) {
+	private async sendEmail(user: User, token: ApiToken, action: string,) {
 		const base_url = Env.get('FRONT_END_URL')
+		let url, msg
+
+		if (action === 'Account Verification'){
+			url = `${base_url}/verify-email?token=${token.token}&$email=${user.email}`
+			msg = `Tap the button below to confirm your email address. If you didn't create an account, you can safely delete this email.`
+		}else if (action === 'Reset Password'){
+			url = `${base_url}/verify-email?token=${token.token}&$email=${user.email}`
+			msg = `Tap the button below to reset your password. If you didn't request reset password, you can safely delete this email.`
+		}
+
 		await Mail.send((message) => {
 			message
 				.from(Env.get('SMTP_USERNAME'))
 				.to(user.email)
 				.subject('Account Verification')
 				.htmlView('emails/welcome.edge', {
-					token: token.token,
 					username: user.username,
-					url: `${base_url}/verify-email/${user.email}?token=${token.token}`,
+					url: url,
+					type_of_action : action,
+					message : msg,
+					from : Env.get('SMTP_USERNAME')
 				})
 		})
 	}
@@ -56,9 +68,9 @@ export default class AuthController {
 
 			await user.useTransaction(trx).save()
 
-			const token = await this.generateEmailConfirmationToken(user.id, trx)
+			const token = await this.generateToken(user.id, 'Account Verification',trx, )
 
-			await this.sendEmailConfirmation(user, token)
+			await this.sendEmail(user, token, 'Account Verification')
 
 			await trx.commit()
 
@@ -104,7 +116,7 @@ export default class AuthController {
 
 			return response.status(404).json({
 				success: false,
-				message: 'User or token not found',
+				message: 'User not found or token expired',
 			})
 		} catch (error) {
 			Logger.error(error)
