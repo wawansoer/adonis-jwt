@@ -20,7 +20,7 @@ export default class ApiToken extends BaseModel {
 	@column()
 	public type: string
 
-	@column({ columnName: 'token'})
+	@column({ columnName: 'token' })
 	public token: string
 
 	@column.dateTime({ autoCreate: true })
@@ -29,7 +29,7 @@ export default class ApiToken extends BaseModel {
 	@column.dateTime({ autoCreate: true, autoUpdate: true })
 	public updatedAt: DateTime
 
-	@column.dateTime({ columnName: 'expires_at'})
+	@column.dateTime({ columnName: 'expires_at' })
 	public expiresAt: DateTime | null
 
 	@beforeCreate()

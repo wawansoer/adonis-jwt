@@ -9,7 +9,6 @@ import User from '../../Models/User'
 import ApiToken from '../../Models/ApiToken'
 import RegisterValidator from '../../Validators/Auth/RegisterValidator'
 
-
 export default class AuthController {
 	private async generateToken(userId: string, action: string, trx) {
 		try {
@@ -29,14 +28,14 @@ export default class AuthController {
 		}
 	}
 
-	private async sendEmail(user: User, token: ApiToken, action: string,) {
+	private async sendEmail(user: User, token: ApiToken, action: string) {
 		const base_url = Env.get('FRONT_END_URL')
 		let url, msg
 
-		if (action === 'Account Verification'){
+		if (action === 'Account Verification') {
 			url = `${base_url}/verify-email?token=${token.token}&$email=${user.email}`
 			msg = `Tap the button below to confirm your email address. If you didn't create an account, you can safely delete this email.`
-		}else if (action === 'Reset Password'){
+		} else if (action === 'Reset Password') {
 			url = `${base_url}/verify-email?token=${token.token}&$email=${user.email}`
 			msg = `Tap the button below to reset your password. If you didn't request reset password, you can safely delete this email.`
 		}
@@ -49,9 +48,9 @@ export default class AuthController {
 				.htmlView('emails/welcome.edge', {
 					username: user.username,
 					url: url,
-					type_of_action : action,
-					message : msg,
-					from : Env.get('SMTP_USERNAME')
+					type_of_action: action,
+					message: msg,
+					from: Env.get('SMTP_USERNAME'),
 				})
 		})
 	}
@@ -68,7 +67,7 @@ export default class AuthController {
 
 			await user.useTransaction(trx).save()
 
-			const token = await this.generateToken(user.id, 'Account Verification',trx, )
+			const token = await this.generateToken(user.id, 'Account Verification', trx)
 
 			await this.sendEmail(user, token, 'Account Verification')
 
@@ -79,7 +78,6 @@ export default class AuthController {
 				message: 'Successfully registered. Please confirm email to login!',
 				user,
 			})
-
 		} catch (error) {
 			Logger.error(error)
 
@@ -124,22 +122,21 @@ export default class AuthController {
 			return response.status(500).json({
 				success: false,
 				message: 'Failed to activate the account',
-				error : error
+				error: error,
 			})
 		}
 	}
 
 	public async resendToken({ request, response }: HttpContextContract) {
-
 		const trx = await Database.transaction()
 
 		const params = request.only(['email'])
 
-		if(params.email){
+		if (params.email) {
 			const user = await User.findBy('email', params.email)
 
 			if (user) {
-				const token = await this.generateToken(user.id, 'Account Verification',trx, )
+				const token = await this.generateToken(user.id, 'Account Verification', trx)
 				await this.sendEmail(user, token, 'Account Verification')
 				await trx.commit()
 				return response.status(200).json({
