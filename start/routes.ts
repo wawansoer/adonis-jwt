@@ -32,7 +32,6 @@ Route.get('health', async ({ response }) => {
 	return report.healthy ? response.ok(report) : response.badRequest(report)
 }).middleware(['roleIn:guest,root'])
 
-
 Route.group(() => {
 	Route.group(() => {
 		Route.post('/register', 'AuthController.register')
@@ -45,5 +44,3 @@ Route.group(() => {
 })
 	.prefix('api/v1/')
 	.middleware('throttle:global')
-
-
