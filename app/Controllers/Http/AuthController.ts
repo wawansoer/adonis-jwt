@@ -206,23 +206,31 @@ export default class AuthController {
 
 			const user = await User.query()
 				.where('email', data.email)
-				.where('is_verified', 1)
 				.where('is_active', 1)
 				.preload('roles')
-				.firstOrFail()
+				.first()
 
 			if (user) {
-				jwt = await auth.use('jwt').generate(user, { payload: user })
-			}
+				// check if user has verified or not
+				if (!user.is_verified) {
+					return response.status(400).json({
+						success: false,
+						message: 'Your account is not verified yet',
+					})
+				}
 
-			return response.status(200).json({
-				success: true,
-				message: 'Successfully Login!',
-				data: {
-					user: user,
-					access_token: jwt,
-				},
-			})
+				// generate jwt
+				jwt = await auth.use('jwt').generate(user, { payload: user })
+
+				return response.status(200).json({
+					success: true,
+					message: 'Successfully Login!',
+					data: {
+						user: user,
+						access_token: jwt,
+					},
+				})
+			}
 		} catch (error) {
 			return response.status(error.messages ? 400 : 500).json({
 				success: false,
