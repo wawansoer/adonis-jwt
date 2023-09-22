@@ -1,8 +1,15 @@
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
-import { BaseModel, beforeSave, column } from '@ioc:Adonis/Lucid/Orm'
+import {
+	BaseModel,
+	beforeSave,
+	beforeCreate,
+	column,
+	manyToMany,
+	ManyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import { v4 as uuid } from 'uuid'
-import { beforeCreate } from '@adonisjs/lucid/build/src/Orm/Decorators'
+import Role from './Role'
 
 export default class User extends BaseModel {
 	@column({ isPrimary: true })
@@ -14,10 +21,10 @@ export default class User extends BaseModel {
 	@column()
 	public username: string
 
-	@column()
+	@column({ serializeAs: null })
 	public is_active: boolean
 
-	@column()
+	@column({ serializeAs: null })
 	public is_verified: boolean
 
 	@column({ serializeAs: null })
@@ -26,10 +33,10 @@ export default class User extends BaseModel {
 	@column()
 	public rememberMeToken: string | null
 
-	@column.dateTime({ autoCreate: true })
+	@column.dateTime({ autoCreate: true, serializeAs: null })
 	public createdAt: DateTime
 
-	@column.dateTime({ autoCreate: true, autoUpdate: true })
+	@column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
 	public updatedAt: DateTime
 
 	@beforeSave()
@@ -43,4 +50,7 @@ export default class User extends BaseModel {
 	public static async createUUID(model: User) {
 		model.id = uuid()
 	}
+
+	@manyToMany(() => Role)
+	public roles: ManyToMany<typeof Role>
 }

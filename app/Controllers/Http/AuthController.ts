@@ -2,65 +2,98 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { DateTime } from 'luxon'
 import Mail from '@ioc:Adonis/Addons/Mail'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { v4 as uuid } from 'uuid'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Env from '@ioc:Adonis/Core/Env'
-import { generateRandomString } from '../../Helpers/GenerateRandomString'
+import { v4 as uuid } from 'uuid'
 import User from '../../Models/User'
-import Token from '../../Models/Token'
-import RegisterValidator from '../../Validators/Auth/RegisterValidator'
-import ForgotPasswordValidator from '../../Validators/Auth/ForgotPasswordValidator'
 import ApiToken from '../../Models/ApiToken'
+import RegisterValidator from '../../Validators/Auth/RegisterValidator'
+import RoleUser from '../../Models/RoleUser'
+import Role from '../../Models/Role'
+import LoginValidator from '../../Validators/Auth/LoginValidator'
+
+const ACTION_ACCOUNT_VERIFICATION = 'Account Verification'
 
 export default class AuthController {
-	private async generateEmailConfirmationToken(userId: string) {
-		try {
-			const token = new ApiToken()
-			token.userId = userId
-			token.name = 'Email Confirmation'
-			// token.type = 'UUID'
-			token.token = generateRandomString(64)
-			token.expiresAt = DateTime.now().plus({ hours: 1 })
-
-			await token.save()
-
-			return token
-		} catch (e) {
-			Logger.error(e)
-			throw new Error('Failed to generate token')
-		}
+	/**
+	 * Create a new user and save it to the database.
+	 */
+	private async createUser(email: string, password: string, username: string, trx): Promise<User> {
+		const user = new User()
+		user.email = email
+		user.password = password
+		user.username = username
+		return await user.useTransaction(trx).save()
 	}
 
-	private async sendEmailConfirmation(user: User, token: ApiToken) {
+	/**
+	 * Insert a new user role and save it to the database.
+	 */
+	private async createUserRole(user_id: string, role_id: string, trx): Promise<RoleUser> {
+		const roleUser = new RoleUser()
+		roleUser.userId = user_id
+		roleUser.roleId = role_id
+		return await roleUser.useTransaction(trx).save()
+	}
+
+	/**
+	 * Generate a verification token for the given user and save it to the database.
+	 */
+	private async generateVerificationToken(userId: string, trx): Promise<ApiToken> {
+		const token = new ApiToken()
+		token.userId = userId
+		token.name = ACTION_ACCOUNT_VERIFICATION
+		token.type = 'UUID'
+		token.token = uuid()
+		token.expiresAt = DateTime.now().plus({ hours: 1 })
+
+		await token.useTransaction(trx).save()
+
+		return token
+	}
+
+	/**
+	 * Send a verification email to the given user with the verification token.
+	 */
+	private async sendVerificationEmail(user: User, token: ApiToken) {
 		const base_url = Env.get('FRONT_END_URL')
+		const url = `${base_url}/verify-email?token=${token.token}&$email=${user.email}`
+		const msg = `Tap the button below to confirm your email address. If you didn't create an account, you can safely delete this email.`
+
 		await Mail.send((message) => {
 			message
 				.from(Env.get('SMTP_USERNAME'))
 				.to(user.email)
 				.subject('Account Verification')
 				.htmlView('emails/welcome.edge', {
-					token: token.token,
 					username: user.username,
-					url: `${base_url}/verify-email/${user.email}?token=${token.token}`,
+					url: url,
+					type_of_action: ACTION_ACCOUNT_VERIFICATION,
+					message: msg,
+					from: Env.get('SMTP_USERNAME'),
 				})
 		})
 	}
 
+	/**
+	 * Register a new user.
+	 */
 	public async register({ request, response }: HttpContextContract) {
 		const trx = await Database.transaction()
+
 		try {
 			const data = await request.validate(RegisterValidator)
 
-			const user = new User()
-			user.email = data.email
-			user.password = data.password
-			user.username = data.username
+			const user = await this.createUser(data.email, data.password, data.username, trx)
 
-			await user.useTransaction(trx).save()
+			// get role
+			const role = await Role.query().where('slug', 'guest').firstOrFail()
+			// insert into user_role
+			await this.createUserRole(user.id, role.id, trx)
 
-			const token = await this.generateEmailConfirmationToken(user.id)
+			const token = await this.generateVerificationToken(user.id, trx)
 
-			await this.sendEmailConfirmation(user, token)
+			await this.sendVerificationEmail(user, token)
 
 			await trx.commit()
 
@@ -69,149 +102,133 @@ export default class AuthController {
 				message: 'Successfully registered. Please confirm email to login!',
 				user,
 			})
-
 		} catch (error) {
 			Logger.error(error)
+			if (trx && trx.isTransaction) {
+				await trx.rollback()
+			}
 
-			await trx.rollback()
+			let errorMessage = error.messages
+				? 'Validation failed'
+				: 'Failed to send email confirmation'
 
 			return response.status(error.messages ? 400 : 500).json({
 				success: false,
-				message: error.messages ? 'Validation failed' : 'Failed to send email conformation',
+				message: errorMessage,
 				error: error.messages ? error.messages : error.message,
 			})
 		}
 	}
 
+	/**
+	 * Verify the email of a user using the verification token.
+	 */
 	public async verifyEmail({ request, response }: HttpContextContract) {
 		try {
 			const { token, email } = request.only(['token', 'email'])
 
-			const tokenRecord = await Token.query()
+			const apiToken = await ApiToken.query()
 				.where('token', token)
 				.where('expires_at', '>=', DateTime.now().toString())
 				.firstOrFail()
 
-			if (tokenRecord) {
-				const user = await User.findBy('email', email)
+			await apiToken.delete() // Delete the verification token from the database
 
-				if (user) {
-					user.is_verified = true
-					await user.save()
-					return response.status(200).json({
-						success: true,
-						message: 'Account activated successfully',
-					})
-				}
+			const user = await User.findBy('email', email)
+
+			if (user) {
+				user.is_verified = true
+				await user.save()
+
+				return response.status(200).json({
+					success: true,
+					message: 'Account activated successfully',
+				})
+			} else {
+				return response.status(404).json({
+					success: false,
+					message: 'User not found',
+				})
+			}
+		} catch (error) {
+			Logger.error(error)
+
+			return response.status(500).json({
+				success: false,
+				message: 'Failed to activate the account',
+				error: error,
+			})
+		}
+	}
+
+	/**
+	 * Resend the verification token to the user's email.
+	 */
+	public async resendToken({ request, response }: HttpContextContract) {
+		const trx = await Database.transaction()
+		try {
+			const params = request.only(['email'])
+
+			if (params.email) {
+				const user = await User.query()
+					.where('email', params.email)
+					.where('is_verified', 0)
+					.firstOrFail()
+
+				const token = await this.generateVerificationToken(user.id, trx)
+				await this.sendVerificationEmail(user, token)
+				await trx.commit()
+				return response.status(200).json({
+					success: true,
+					message: `Successfully sent token to ${user.email}`,
+				})
+			}
+		} catch (error) {
+			if (trx && trx.isTransaction) {
+				await trx.rollback()
 			}
 
-			return response.status(404).json({
+			return response.status(500).json({
 				success: false,
-				message: 'Failed to activate the account',
-				data: null,
+				message: 'Your account is not registered or has active',
+				error: error.message,
+			})
+		}
+	}
+
+	/**
+	 * Login a user and generate a JWT token.
+	 */
+	public async login({ request, response, auth }: HttpContextContract) {
+		let jwt
+		try {
+			const data = await request.validate(LoginValidator)
+
+			const user = await User.query()
+				.where('email', data.email)
+				.where('is_verified', 1)
+				.where('is_active', 1)
+				.preload('roles')
+				.firstOrFail()
+
+			if (user) {
+				jwt = await auth.use('jwt').generate(user, { payload: user })
+			}
+
+			return response.status(200).json({
+				success: true,
+				message: 'Successfully Login!',
+				data: {
+					user: user,
+					access_token: jwt,
+				},
 			})
 		} catch (error) {
-			// Handle any errors here, log them, and respond accordingly
-			Logger.error(error)
-			return response.status(404).json({
+			return response.status(error.messages ? 400 : 500).json({
 				success: false,
-				message: 'Failed to activate the account',
-				data: null,
+				message: 'Combination email & password not match',
+				error: error.messages ? error.messages : error.message,
 			})
 		}
-	}
-
-	public async resendToken({ request, response }: HttpContextContract) {
-		const params = request.only(['email'])
-
-		const user = await User.findBy('email', params.email)
-
-		if (user) {
-			await this.sendToken(user.id, user.email, user.username)
-			return response.status(404).json({
-				success: true,
-				message: `Successfully sent token to ${user.email}`,
-			})
-		}
-
-		return response.status(404).json({
-			success: false,
-			message: 'User not found',
-			data: null,
-		})
-	}
-
-	public async reqTokenResetPassword({ request, response }: HttpContextContract) {
-		const params = request.only(['email'])
-
-		const user = await User.findBy('email', params.email)
-
-		if (user) {
-			const generate_token = uuid()
-			const token = new Token()
-			token.userId = user.id
-			token.token = generate_token
-			token.expiresAt = DateTime.now().plus({ hours: 1 })
-			let base_url = Env.get('FRONT_END_URL')
-
-			await Mail.send((message) => {
-				message
-					.from(`${Env.get('SMTP_USERNAME')}`)
-					.to(user.email)
-					.subject('Reset Password Request')
-					.html(
-						`<h3> Hi, ${user.username}</h3>
-						<p>
-							Please click this
-							<a href='${base_url}/reset-password/${user.id}/token/${generate_token}'>Link</a>
-							to reset your password
-						</p>`
-					)
-			})
-
-			return response.status(404).json({
-				success: true,
-				message: `Successfully sent token to ${user.email}`,
-			})
-		}
-
-		return response.status(404).json({
-			success: false,
-			message: 'User not found',
-			data: null,
-		})
-	}
-	public async updatePassword({ request, response }: HttpContextContract) {
-		let data = await request.validate(ForgotPasswordValidator)
-
-		const user = await User.findBy('email', data.email)
-
-		if (!user) {
-			return response.status(404).json({
-				success: false,
-				message: 'User not found',
-			})
-		}
-
-		return response.status(200).json({
-			success: true,
-			message: `Verification token have sent to ${user.email} !`,
-		})
-	}
-
-	public async login({ request, auth }: HttpContextContract) {
-		const data = request.only(['email', 'password'])
-		const user = await User.findBy('email', data.email)
-
-		const users = {
-			user: user,
-			role: 'admin',
-		}
-
-		let jwt
-		if (user) {
-			jwt = await auth.use('jwt').generate(user, { payload: users })
-		}
-		return jwt
 	}
 }
