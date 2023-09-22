@@ -33,4 +33,6 @@ Route.group(() => {
 		Route.post('/forgot-password', 'AuthController.forgotPassword')
 		Route.post('/update-password', 'AuthController.updatePassword')
 	}).prefix('auth')
-}).prefix('api/v1/')
+})
+	.prefix('api/v1/')
+	.middleware('throttle:global')

@@ -14,7 +14,7 @@
 		"Database": "database",
 		"Contracts": "contracts"
 	},
-	"preloads": ["./start/routes", "./start/kernel"],
+	"preloads": ["./start/routes", "./start/kernel", "./start/limiter"],
 	"providers": [
 		"./providers/AppProvider",
 		"@adonisjs/core",
@@ -22,7 +22,8 @@
 		"@adonisjs/lucid",
 		"adonis5-jwt",
 		"@adonisjs/mail",
-		"@adonisjs/view"
+		"@adonisjs/view",
+		"@adonisjs/limiter"
 	],
 	"aceProviders": ["@adonisjs/repl"],
 	"tests": {

@@ -66,14 +66,15 @@ export default class AuthController {
 	 * Send a verification email to the given user with the verification token.
 	 */
 	private async sendEmail(user: User, token: ApiToken, action: string) {
-		let url, msg
-		const base_url = Env.get('FRONT_END_URL')
+		let url
+		let msg
+		const baseUrl = Env.get('FRONT_END_URL')
 
 		if (action === EmailAction.Verification) {
-			url = `${base_url}/verify-email?token=${token.token}&$email=${user.email}`
+			url = `${baseUrl}/verify-email?token=${token.token}&$email=${user.email}`
 			msg = `Tap the button below to confirm your email address. If you didn't create an account, you can safely delete this email.`
 		} else if (action === EmailAction.ResetPassword) {
-			url = `${base_url}/forgot-password?token=${token.token}&$email=${user.email}`
+			url = `${baseUrl}/forgot-password?token=${token.token}&$email=${user.email}`
 			msg = `Tap the button below to reset your password. If you didn't request reset your password, you can safely delete this email.`
 		}
 
