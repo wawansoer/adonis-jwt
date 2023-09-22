@@ -8,6 +8,9 @@ import { v4 as uuid } from 'uuid'
 import User from '../../Models/User'
 import ApiToken from '../../Models/ApiToken'
 import RegisterValidator from '../../Validators/Auth/RegisterValidator'
+import RoleUser from '../../Models/RoleUser'
+import Role from '../../Models/Role'
+import LoginValidator from '../../Validators/Auth/LoginValidator'
 
 const ACTION_ACCOUNT_VERIFICATION = 'Account Verification'
 
@@ -21,6 +24,16 @@ export default class AuthController {
 		user.password = password
 		user.username = username
 		return await user.useTransaction(trx).save()
+	}
+
+	/**
+	 * Insert a new user role and save it to the database.
+	 */
+	private async createUserRole(user_id: string, role_id: string, trx): Promise<RoleUser> {
+		const roleUser = new RoleUser()
+		roleUser.userId = user_id
+		roleUser.roleId = role_id
+		return await roleUser.useTransaction(trx).save()
 	}
 
 	/**
@@ -67,10 +80,16 @@ export default class AuthController {
 	 */
 	public async register({ request, response }: HttpContextContract) {
 		const trx = await Database.transaction()
+
 		try {
 			const data = await request.validate(RegisterValidator)
 
 			const user = await this.createUser(data.email, data.password, data.username, trx)
+
+			// get role
+			const role = await Role.query().where('slug', 'guest').firstOrFail()
+			// insert into user_role
+			await this.createUserRole(user.id, role.id, trx)
 
 			const token = await this.generateVerificationToken(user.id, trx)
 
@@ -180,19 +199,36 @@ export default class AuthController {
 	/**
 	 * Login a user and generate a JWT token.
 	 */
-	public async login({ request, auth }: HttpContextContract) {
-		const data = request.only(['email', 'password'])
-		const user = await User.findBy('email', data.email)
-
-		const users = {
-			user: user,
-			role: 'admin',
-		}
-
+	public async login({ request, response, auth }: HttpContextContract) {
 		let jwt
-		if (user) {
-			jwt = await auth.use('jwt').generate(user, { payload: users })
+		try {
+			const data = await request.validate(LoginValidator)
+
+			const user = await User.query()
+				.where('email', data.email)
+				.where('is_verified', 1)
+				.where('is_active', 1)
+				.preload('roles')
+				.firstOrFail()
+
+			if (user) {
+				jwt = await auth.use('jwt').generate(user, { payload: user })
+			}
+
+			return response.status(200).json({
+				success: true,
+				message: 'Successfully Login!',
+				data: {
+					user: user,
+					access_token: jwt,
+				},
+			})
+		} catch (error) {
+			return response.status(error.messages ? 400 : 500).json({
+				success: false,
+				message: 'Combination email & password not match',
+				error: error.messages ? error.messages : error.message,
+			})
 		}
-		return jwt
 	}
 }
