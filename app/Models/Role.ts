@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
-import { beforeCreate } from '@adonisjs/lucid/build/src/Orm/Decorators'
-import User from './User'
+import { BaseModel, beforeCreate, column, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
 import { v4 as uuid } from 'uuid'
+import User from './User'
 
 export default class Role extends BaseModel {
-	@column({ isPrimary: true })
+	// Specify the table name (optional)
+	public static table = 'roles'
+
+	@column({ isPrimary: true, serializeAs: null })
 	public id: string
 
 	@column()
@@ -17,17 +19,17 @@ export default class Role extends BaseModel {
 	@column()
 	public description: string | null
 
-	@column.dateTime({ autoCreate: true })
+	@column.dateTime({ autoCreate: true, serializeAs: null })
 	public createdAt: DateTime
 
-	@column.dateTime({ autoCreate: true, autoUpdate: true })
+	@column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
 	public updatedAt: DateTime
 
-	// Specify the table name (optional)
-	public static table = 'roles'
-
 	@beforeCreate()
-	public static async createUUID(model: User) {
+	public static async createUUID(model: Role) {
 		model.id = uuid()
 	}
+
+	@manyToMany(() => User)
+	public users: ManyToMany<typeof User>
 }
