@@ -33,7 +33,7 @@ export default class ApiToken extends BaseModel {
 	public expiresAt: DateTime | null
 
 	@beforeCreate()
-	public static async createUUID(model: User) {
+	public static async createUUID(model: ApiToken) {
 		model.id = uuid()
 	}
 }
