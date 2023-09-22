@@ -1,7 +1,7 @@
 import { schema, CustomMessages, rules } from '@ioc:Adonis/Core/Validator'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-export default class ForgotPasswordValidator {
+export default class UpdatePasswordValidator {
 	constructor(protected ctx: HttpContextContract) {}
 
 	/*
@@ -25,6 +25,8 @@ export default class ForgotPasswordValidator {
 	 */
 	public schema = schema.create({
 		email: schema.string({ trim: true }, [rules.email()]),
+		password: schema.string({ trim: true }, [rules.minLength(8)]),
+		token: schema.string({ trim: true }, [rules.uuid({ version: 4 })]),
 	})
 
 	/**
@@ -41,5 +43,8 @@ export default class ForgotPasswordValidator {
 	public messages: CustomMessages = {
 		'required': '{{ field }} is required',
 		'email.email': 'Invalid email address format',
+		'minLength': '{{ field }} must be at least {{ options.minLength }} characters long',
+		'maxLength': '{{ field }} must be less then {{ options.maxLength }} characters long',
+		'token.uuid': 'Invalid token format',
 	}
 }

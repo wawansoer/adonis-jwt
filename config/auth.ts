@@ -233,8 +233,8 @@ const authConfig: AuthConfig = {
 			publicKey: Env.get('JWT_PUBLIC_KEY', '').replace(/\\n/g, '\n'),
 			privateKey: Env.get('JWT_PRIVATE_KEY', '').replace(/\\n/g, '\n'),
 			persistJwt: false,
-			jwtDefaultExpire: '1d',
-			refreshTokenDefaultExpire: '1d',
+			jwtDefaultExpire: '5h',
+			refreshTokenDefaultExpire: '5h',
 			tokenProvider: {
 				type: 'api',
 				driver: 'database',
@@ -244,7 +244,7 @@ const authConfig: AuthConfig = {
 			provider: {
 				driver: 'lucid',
 				identifierKey: 'id',
-				uids: [],
+				uids: ['email'],
 				model: () => import('../app/Models/User'),
 			},
 		},
