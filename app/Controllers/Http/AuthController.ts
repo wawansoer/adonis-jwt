@@ -162,9 +162,7 @@ export default class AuthController {
 					success: true,
 					message: 'Account activated successfully',
 				})
-
 			} else {
-
 				return response.status(404).json({
 					success: false,
 					message: 'User not found',
@@ -273,7 +271,6 @@ export default class AuthController {
 		const trx = await Database.transaction()
 
 		try {
-
 			const data = await request.validate(ForgotPasswordValidator)
 
 			const user = await User.query()
@@ -303,7 +300,6 @@ export default class AuthController {
 				})
 			}
 		} catch (error) {
-
 			Logger.error(error)
 
 			await trx.rollback()
