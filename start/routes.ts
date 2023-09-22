@@ -25,10 +25,11 @@ Route.get('/', async () => {
 })
 
 Route.group(() => {
-	Route.post('/register', 'AuthController.register')
-	Route.get('/verify-email', 'AuthController.verifyEmail')
-	Route.post('/resend-token', 'AuthController.resendToken')
-	Route.post('/verify-token', 'AuthController.verifyToken')
-	Route.post('/login', 'AuthController.login')
-	Route.post('/forgot-password', 'AuthController.forgotPassword')
-}).prefix('api/v1/auth')
+	Route.group(() => {
+		Route.post('/register', 'AuthController.register')
+		Route.get('/verify-email', 'AuthController.verifyEmail')
+		Route.post('/resend-token', 'AuthController.resendToken')
+		Route.post('/login', 'AuthController.login')
+		Route.post('/forgot-password', 'AuthController.forgotPassword')
+	}).prefix('auth')
+}).prefix('api/v1/')
