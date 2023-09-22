@@ -184,6 +184,9 @@ export default class AuthController {
 				})
 			}
 		} catch (error) {
+
+			Logger.error(error)
+
 			if (trx && trx.isTransaction) {
 				await trx.rollback()
 			}
@@ -219,6 +222,8 @@ export default class AuthController {
 					})
 				}
 
+				await auth.use('jwt').attempt(data.email, data.password)
+
 				// generate jwt
 				jwt = await auth.use('jwt').generate(user, { payload: user })
 
@@ -232,6 +237,52 @@ export default class AuthController {
 				})
 			}
 		} catch (error) {
+
+			Logger.error(error)
+
+			return response.status(error.messages ? 400 : 500).json({
+				success: false,
+				message: 'Combination email & password not match',
+				error: error.messages ? error.messages : error.message,
+			})
+		}
+	}
+
+	/**
+	 * Forgot password to send token reset password.
+	 */
+	public async forgotPassword({ request, response }: HttpContextContract) {
+		try {
+			const data = await request.validate(LoginValidator)
+
+			const user = await User.query()
+				.where('email', data.email)
+				.where('is_active', 1)
+				.preload('roles')
+				.firstOrFail()
+
+			if (user) {
+				// check if user has verified or not
+				if (!user.is_verified) {
+					return response.status(400).json({
+						success: false,
+						message: 'Your account is not verified yet',
+					})
+				}
+
+				// generate jwt
+				return response.status(200).json({
+					success: true,
+					message: 'Successfully Login!',
+					data: {
+						user: user,
+					},
+				})
+			}
+		} catch (error) {
+
+			Logger.error(error)
+
 			return response.status(error.messages ? 400 : 500).json({
 				success: false,
 				message: 'Combination email & password not match',
