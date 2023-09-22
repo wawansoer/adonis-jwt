@@ -8,7 +8,7 @@ export default class extends BaseSchema {
 			table.uuid('id').primary().index()
 			table.string('email', 255).notNullable().unique().index()
 			table.string('username', 100).notNullable().unique().index()
-			table.boolean('is_active').notNullable().defaultTo(false)
+			table.boolean('is_active').notNullable().defaultTo(true)
 			table.boolean('is_verified').notNullable().defaultTo(false)
 			table.string('password', 180).notNullable()
 			table.string('remember_me_token').nullable()

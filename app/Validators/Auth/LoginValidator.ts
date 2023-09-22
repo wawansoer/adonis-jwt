@@ -1,7 +1,7 @@
 import { schema, CustomMessages, rules } from '@ioc:Adonis/Core/Validator'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-export default class RegisterValidator {
+export default class LoginValidator {
 	constructor(protected ctx: HttpContextContract) {}
 
 	/*
@@ -24,19 +24,7 @@ export default class RegisterValidator {
 	 *    ```
 	 */
 	public schema = schema.create({
-		username: schema.string({ trim: true }, [
-			rules.maxLength(50),
-			rules.minLength(3),
-			rules.unique({ table: 'users', column: 'username' }),
-			rules.notIn(['admin', 'super', 'moderator', 'public', 'dev', 'alpha', 'mail']),
-			rules.alphaNum({
-				allow: ['underscore'],
-			}),
-		]),
-		email: schema.string({ trim: true }, [
-			rules.unique({ table: 'users', column: 'email' }),
-			rules.email(),
-		]),
+		email: schema.string({ trim: true }, [rules.email()]),
 		password: schema.string({}, [rules.minLength(8)]),
 	})
 
@@ -52,11 +40,11 @@ export default class RegisterValidator {
 	 *
 	 */
 	public messages: CustomMessages = {
+		'email.email': 'Invalid email address format',
 		'minLength': '{{ field }} must be at least {{ options.minLength }} characters long',
 		'maxLength': '{{ field }} must be less then {{ options.maxLength }} characters long',
 		'required': '{{ field }} is required',
 		'unique': '{{ field }} must be unique, and this value is already taken',
 		'alphaNum': "{{ field }} can't contain space & dash",
-		'email.email': 'Invalid email address format',
 	}
 }
