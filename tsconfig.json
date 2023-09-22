@@ -20,7 +20,8 @@
 			"@adonisjs/lucid",
 			"adonis5-jwt",
 			"@adonisjs/mail",
-			"@adonisjs/view"
+			"@adonisjs/view",
+			"@adonisjs/limiter"
 		]
 	}
 }

@@ -11,6 +11,9 @@ dependencies:
    '@adonisjs/core':
       specifier: ^5.8.0
       version: 5.9.0
+   '@adonisjs/limiter':
+      specifier: ^1.0.2
+      version: 1.0.2(@adonisjs/core@5.9.0)(@adonisjs/lucid@18.4.0)
    '@adonisjs/lucid':
       specifier: ^18.4.0
       version: 18.4.0(@adonisjs/application@5.3.0)(@adonisjs/core@5.9.0)(mysql2@3.6.1)
@@ -372,6 +375,27 @@ packages:
             integrity: sha512-ik1C7f0Hbqenw6S1Ty06B4pznGfpUH5bL2fiCYgwq+jKPw8CKdsTQKvYudS6Tj68Nr6Mpqow4RNbvFV/OC0mZg==,
          }
       dev: true
+
+   /@adonisjs/limiter@1.0.2(@adonisjs/core@5.9.0)(@adonisjs/lucid@18.4.0):
+      resolution:
+         {
+            integrity: sha512-Fye9o+6e+1CSEpIvZ7QHX44CW3Yjw+U9xy/gat0nSezvtyxF5ql02P42m+WFaPmzWwZrcZtxnfBCykCTUDhD4w==,
+         }
+      peerDependencies:
+         '@adonisjs/core': ^5.8.0
+         '@adonisjs/lucid': ^18.1.0
+         '@adonisjs/redis': ^7.3.0
+      peerDependenciesMeta:
+         '@adonisjs/lucid':
+            optional: true
+         '@adonisjs/redis':
+            optional: true
+      dependencies:
+         '@adonisjs/core': 5.9.0
+         '@adonisjs/lucid': 18.4.0(@adonisjs/application@5.3.0)(@adonisjs/core@5.9.0)(mysql2@3.6.1)
+         '@poppinss/utils': 5.0.0
+         rate-limiter-flexible: 2.4.2
+      dev: false
 
    /@adonisjs/logger@4.1.5:
       resolution:
@@ -6563,6 +6587,13 @@ packages:
             integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==,
          }
       engines: { node: '>= 0.6' }
+
+   /rate-limiter-flexible@2.4.2:
+      resolution:
+         {
+            integrity: sha512-rMATGGOdO1suFyf/mI5LYhts71g1sbdhmd6YvdiXO2gJnd42Tt6QS4JUKJKSWVVkMtBacm6l40FR7Trjo6Iruw==,
+         }
+      dev: false
 
    /raw-body@2.5.2:
       resolution:
