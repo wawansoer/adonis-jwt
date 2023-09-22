@@ -19,10 +19,18 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import HealthCheck from '@ioc:Adonis/Core/HealthCheck'
 
+// example route using default jwt
 Route.get('/', async () => {
 	return { message: 'This is Adonis 5 Service' }
-})
+}).middleware('auth:jwt')
+
+// example route using costume jwt to verified user role
+Route.get('health', async ({ response }) => {
+	const report = await HealthCheck.getReport()
+	return report.healthy ? response.ok(report) : response.badRequest(report)
+}).middleware(['roleIn:guest,root'])
 
 Route.group(() => {
 	Route.group(() => {
