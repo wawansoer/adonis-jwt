@@ -243,7 +243,7 @@ export default class AuthController {
 				await auth.use('jwt').attempt(data.email, data.password)
 
 				// generate jwt
-				jwt = await auth.use('jwt').generate(user, { payload: user })
+				jwt = await auth.use('jwt').login(user, { payload: { user: user } })
 
 				return response.status(200).json({
 					success: true,
