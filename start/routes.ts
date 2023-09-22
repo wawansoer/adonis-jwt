@@ -31,5 +31,6 @@ Route.group(() => {
 		Route.post('/resend-token', 'AuthController.resendToken')
 		Route.post('/login', 'AuthController.login')
 		Route.post('/forgot-password', 'AuthController.forgotPassword')
+		Route.post('/update-password', 'AuthController.updatePassword')
 	}).prefix('auth')
 }).prefix('api/v1/')
