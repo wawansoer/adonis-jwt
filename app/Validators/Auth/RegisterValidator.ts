@@ -33,7 +33,10 @@ export default class RegisterValidator {
 				allow: ['underscore'],
 			}),
 		]),
-		email: schema.string({ trim: true }, [rules.unique({ table: 'users', column: 'email' })]),
+		email: schema.string({ trim: true }, [
+			rules.unique({ table: 'users', column: 'email' }),
+			rules.email(),
+		]),
 		password: schema.string({}, [rules.minLength(8)]),
 	})
 
@@ -49,10 +52,11 @@ export default class RegisterValidator {
 	 *
 	 */
 	public messages: CustomMessages = {
-		minLength: '{{ field }} must be at least {{ options.minLength }} characters long',
-		maxLength: '{{ field }} must be less then {{ options.maxLength }} characters long',
-		required: '{{ field }} is required',
-		unique: '{{ field }} must be unique, and this value is already taken',
-		alphaNum: "{{ field }} can't contain space & dash",
+		'minLength': '{{ field }} must be at least {{ options.minLength }} characters long',
+		'maxLength': '{{ field }} must be less then {{ options.maxLength }} characters long',
+		'required': '{{ field }} is required',
+		'unique': '{{ field }} must be unique, and this value is already taken',
+		'alphaNum': "{{ field }} can't contain space & dash",
+		'email.email': 'Invalid email address format',
 	}
 }
