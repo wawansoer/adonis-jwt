@@ -19,4 +19,5 @@ export const { httpLimiters } = Limiter.define('global', () => {
 			error.status = 429
 		})
 		.store('db')
+		.blockFor('30 min')
 })
