@@ -23,16 +23,16 @@ const databaseConfig: DatabaseConfig = {
 
 	connections: {
 		/*
-    |--------------------------------------------------------------------------
-    | MySQL config
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for MySQL database. Make sure to install the driver
-    | from npm when using this connection
-    |
-    | npm i mysql2
-    |
-    */
+	 |--------------------------------------------------------------------------
+	 | MySQL config
+	 |--------------------------------------------------------------------------
+	 |
+	 | Configuration for MySQL database. Make sure to install the driver
+	 | from npm when using this connection
+	 |
+	 | npm i mysql2
+	 |
+	 */
 		mysql: {
 			client: 'mysql2',
 			connection: {
@@ -41,6 +41,32 @@ const databaseConfig: DatabaseConfig = {
 				user: Env.get('MYSQL_USER'),
 				password: Env.get('MYSQL_PASSWORD', ''),
 				database: Env.get('MYSQL_DB_NAME'),
+			},
+			migrations: {
+				naturalSort: true,
+			},
+			healthCheck: true,
+			debug: false,
+		},
+		/*
+		|--------------------------------------------------------------------------
+		| Postgres config
+		|--------------------------------------------------------------------------
+		|
+		| Configuration for PostgreSQL database. Make sure to install the driver
+		| from npm when using this connection
+		|
+		| npm i pg
+		|
+		*/
+		pg: {
+			client: 'pg',
+			connection: {
+				host: Env.get('DB_HOST', '127.0.0.1') as string,
+				port: Number(Env.get('DB_PORT', 5432)),
+				user: Env.get('DB_USER', 'postgres') as string,
+				password: Env.get('DB_PASSWORD', '') as string,
+				database: Env.get('DB_NAME', 'movies') as string,
 			},
 			migrations: {
 				naturalSort: true,
