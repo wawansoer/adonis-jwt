@@ -6,15 +6,16 @@
  */
 
 import { limiterConfig } from '@adonisjs/limiter/build/config'
+import Env from '@ioc:Adonis/Core/Env'
 
 export default limiterConfig({
 	default: 'db',
 	stores: {
 		db: {
 			client: 'db',
-			dbName: 'adonis-v',
+			dbName: Env.get('MYSQL_DB_NAME'),
 			tableName: 'rate_limits',
-			connectionName: 'mysql',
+			connectionName: Env.get('DB_CONNECTION'),
 			clearExpiredByTimeout: true,
 		},
 	},
