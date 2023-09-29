@@ -44,7 +44,20 @@ const corsConfig: CorsConfig = {
   |                     one of the above values.
   |
   */
-	origin: true,
+	origin: '*',
+	// origin: (requestOrigin) => {
+	// 	const allowedOrigins = [
+	// 		'http://localhost:5173',
+	// 		'https://vue.onecodeforlife.my.id',
+	// 		'https://carwash.onecodeforlife.my.id',
+	// 	]
+	//
+	// 	if (allowedOrigins.includes(requestOrigin)) {
+	// 		return requestOrigin
+	// 	}
+	//
+	// 	return false // Disallow all other origins
+	// },
 
 	/*
   |--------------------------------------------------------------------------
