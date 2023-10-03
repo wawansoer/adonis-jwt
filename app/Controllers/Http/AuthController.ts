@@ -229,7 +229,7 @@ export default class AuthController {
 				.where('email', data.email)
 				.where('is_active', 1)
 				.preload('roles')
-				.first()
+				.firstOrFail()
 
 			if (user) {
 				// check if user has verified or not
