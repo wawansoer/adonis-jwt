@@ -17,10 +17,10 @@ const corsConfig: CorsConfig = {
   | application.
   |
   | Setting the value to `true` will enable the CORS for all HTTP request. However,
-  | you can define a function to enable/disable it on per request basis as well.
+  | you can define a function to enable/disable it on per-request basis as well.
   |
   */
-	enabled: false,
+	enabled: true,
 
 	// You can also use a function that return true or false.
 	// enabled: (request) => request.url().startsWith('/api')
@@ -44,20 +44,20 @@ const corsConfig: CorsConfig = {
   |                     one of the above values.
   |
   */
-	origin: '*',
-	// origin: (requestOrigin) => {
-	// 	const allowedOrigins = [
-	// 		'http://localhost:5173',
-	// 		'https://vue.onecodeforlife.my.id',
-	// 		'https://carwash.onecodeforlife.my.id',
-	// 	]
-	//
-	// 	if (allowedOrigins.includes(requestOrigin)) {
-	// 		return requestOrigin
-	// 	}
-	//
-	// 	return false // Disallow all other origins
-	// },
+	// origin: '*',
+	origin: (requestOrigin) => {
+		const allowedOrigins = [
+			'http://localhost:5173',
+			'https://vue.onecodeforlife.my.id',
+			'https://carwash.onecodeforlife.my.id',
+		]
+
+		if (allowedOrigins.includes(requestOrigin)) {
+			return requestOrigin
+		}
+
+		return false // Disallow all other origins
+	},
 
 	/*
   |--------------------------------------------------------------------------
@@ -96,7 +96,7 @@ const corsConfig: CorsConfig = {
   |--------------------------------------------------------------------------
   |
   | A list of headers to be exposed by setting `Access-Control-Expose-Headers`.
-  | header. By default following 6 simple response headers are exposed.
+  | header. By default, following 6 simple response headers are exposed.
   |
   | Cache-Control
   | Content-Language
