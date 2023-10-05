@@ -40,6 +40,7 @@ Route.group(() => {
 		Route.post('/login', 'AuthController.login')
 		Route.post('/forgot-password', 'AuthController.forgotPassword')
 		Route.post('/update-password', 'AuthController.updatePassword')
+		Route.get('/me', 'AuthController.me')
 	}).prefix('auth')
 })
 	.prefix('api/v1/')
