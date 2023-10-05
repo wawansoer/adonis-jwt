@@ -355,4 +355,26 @@ export default class AuthController {
 			})
 		}
 	}
+
+	/**
+	 * Verify user jwt.
+	 * */
+	public async me({ auth, response }: HttpContextContract) {
+		try {
+			await auth.use('jwt').authenticate()
+			const userPayloadFromJwt = auth.use('jwt').payload!
+
+			return response.status(200).json({
+				success: true,
+				data: userPayloadFromJwt,
+			})
+		} catch (error) {
+			Logger.error(error)
+			return response.status(500).json({
+				success: false,
+				message: 'You must login again',
+				error: error,
+			})
+		}
+	}
 }
