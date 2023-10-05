@@ -13,6 +13,7 @@ import Role from '../../Models/Role'
 import LoginValidator from '../../Validators/Auth/LoginValidator'
 import ForgotPasswordValidator from '../../Validators/Auth/ForgotPasswordValidator'
 import UpdatePasswordValidator from '../../Validators/Auth/UpdatePasswordValidator'
+import { JWTTokenContract } from '@ioc:Adonis/Addons/Jwt'
 
 enum EmailAction {
 	Verification = 'Account Verification',
@@ -66,8 +67,8 @@ export default class AuthController {
 	 * Send a verification email to the given user with the verification token.
 	 */
 	private async sendEmail(user: User, token: ApiToken, action: string) {
-		let url
-		let msg
+		let url: string
+		let msg: string
 		const baseUrl = Env.get('FRONT_END_URL')
 
 		if (action === EmailAction.Verification) {
@@ -150,7 +151,7 @@ export default class AuthController {
 				.where('expires_at', '>=', DateTime.now().toString())
 				.firstOrFail()
 
-			const user = await User.findBy('email', email)
+			const user = await User.query().where('email', email).firstOrFail()
 
 			if (user) {
 				user.is_verified = true
@@ -172,7 +173,7 @@ export default class AuthController {
 		} catch (error) {
 			Logger.error(error)
 
-			return response.status(500).json({
+			return response.status(400).json({
 				success: false,
 				message: 'Failed to activate the account',
 				error: error,
@@ -221,7 +222,7 @@ export default class AuthController {
 	 * Login a user and generate a JWT token.
 	 */
 	public async login({ request, response, auth }: HttpContextContract) {
-		let jwt
+		let jwt: JWTTokenContract<User>
 		try {
 			const data = await request.validate(LoginValidator)
 
@@ -257,7 +258,7 @@ export default class AuthController {
 		} catch (error) {
 			Logger.error(error)
 
-			return response.status(error.messages ? 400 : 500).json({
+			return response.status(400).json({
 				success: false,
 				message: 'Combination email & password not match',
 				error: error.messages ? error.messages : error.message,
@@ -305,7 +306,7 @@ export default class AuthController {
 
 			await trx.rollback()
 
-			return response.status(error.messages ? 400 : 500).json({
+			return response.status(400).json({
 				success: false,
 				message: 'Seems your email has not registered in our system',
 				error: error.messages ? error.messages : error.message,
