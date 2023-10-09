@@ -72,10 +72,10 @@ export default class AuthController {
 		const baseUrl = Env.get('FRONT_END_URL')
 
 		if (action === EmailAction.Verification) {
-			url = `${baseUrl}/verify-email?token=${token.token}&$email=${user.email}`
+			url = `${baseUrl}/verify-email?token=${token.token}&email=${user.email}`
 			msg = `Tap the button below to confirm your email address. If you didn't create an account, you can safely delete this email.`
 		} else if (action === EmailAction.ResetPassword) {
-			url = `${baseUrl}/forgot-password?token=${token.token}&$email=${user.email}`
+			url = `${baseUrl}/forgot-password?token=${token.token}&email=${user.email}`
 			msg = `Tap the button below to reset your password. If you didn't request reset your password, you can safely delete this email.`
 		}
 
@@ -350,7 +350,7 @@ export default class AuthController {
 
 			return response.status(500).json({
 				success: false,
-				message: 'Failed to activate the account',
+				message: 'Failed to update your password. Make sure you have a correct link',
 				error: error,
 			})
 		}

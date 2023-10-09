@@ -45,3 +45,9 @@ Route.group(() => {
 })
 	.prefix('api/v1/')
 	.middleware('throttle:global')
+
+Route.group(() => {
+	Route.resource('/user-detail', 'UserDetailsController').apiOnly()
+})
+	.prefix('api/v1')
+	.middleware(['auth:jwt', 'throttle:global'])
