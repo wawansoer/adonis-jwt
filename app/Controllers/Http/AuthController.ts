@@ -73,10 +73,10 @@ export default class AuthController {
 
 		if (action === EmailAction.Verification) {
 			url = `${baseUrl}/verify-email?token=${token.token}&email=${user.email}`
-			msg = `Tap the button below to confirm your email address. If you didn't create an account, you can safely delete this email.`
+			msg = `confirm your email address.`
 		} else if (action === EmailAction.ResetPassword) {
 			url = `${baseUrl}/forgot-password?token=${token.token}&email=${user.email}`
-			msg = `Tap the button below to reset your password. If you didn't request reset your password, you can safely delete this email.`
+			msg = `reset your password.`
 		}
 
 		await Mail.send((message) => {
