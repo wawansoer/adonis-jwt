@@ -75,7 +75,7 @@ export default class AuthController {
 			url = `${baseUrl}/verify-email?token=${token.token}&email=${user.email}`
 			msg = `confirm your email address.`
 		} else if (action === EmailAction.ResetPassword) {
-			url = `${baseUrl}/forgot-password?token=${token.token}&email=${user.email}`
+			url = `${baseUrl}/update-password?token=${token.token}&email=${user.email}`
 			msg = `reset your password.`
 		}
 
