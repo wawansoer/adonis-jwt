@@ -34,13 +34,13 @@ Route.get('health', async ({ response }) => {
 
 Route.group(() => {
 	Route.group(() => {
-		Route.post('/register', 'AuthController.register')
-		Route.get('/verify-email', 'AuthController.verifyEmail')
-		Route.post('/resend-token', 'AuthController.resendToken')
-		Route.post('/login', 'AuthController.login')
-		Route.post('/forgot-password', 'AuthController.forgotPassword')
-		Route.post('/update-password', 'AuthController.updatePassword')
-		Route.get('/me', 'AuthController.me')
+		Route.post('/register', 'Auth/RegisterController.index')
+		Route.get('/verify-email', 'Auth/VerifyEmailController.index')
+		Route.post('/resend-token', 'Auth/ResendTokenController.index')
+		Route.post('/login', 'Auth/LoginController.index')
+		Route.post('/forgot-password', 'Auth/ForgotPasswordController.index')
+		Route.post('/update-password', 'Auth/Controller.updatePassword')
+		Route.get('/me', 'Auth/MeController.index')
 	}).prefix('auth')
 })
 	.prefix('api/v1/')
