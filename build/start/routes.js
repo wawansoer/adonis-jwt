@@ -19,7 +19,7 @@ Route_1.default.group(() => {
         Route_1.default.post('/resend-token', 'Auth/ResendTokenController.index');
         Route_1.default.post('/login', 'Auth/LoginController.index');
         Route_1.default.post('/forgot-password', 'Auth/ForgotPasswordController.index');
-        Route_1.default.post('/update-password', 'Auth/Controller.updatePassword');
+        Route_1.default.post('/update-password', 'Auth/UpdatePasswordByTokenController.index');
         Route_1.default.get('/me', 'Auth/MeController.index');
     }).prefix('auth');
 })
