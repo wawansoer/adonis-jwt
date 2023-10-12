@@ -14,18 +14,9 @@ export default class LoginController {
 		try {
 			const data = await request.validate(LoginValidator)
 
-			const user = await User.query()
-				.where('email', data.email)
-				.where('is_active', 1)
-				.preload('roles')
-				.firstOrFail()
+			const user = await User.query().where('email', data.email).preload('roles').firstOrFail()
 
-			if (user) {
-				// check if user has verified or not
-				if (!user.is_verified) {
-					Response(response, false, 'Your account is not verified yet', '', '', 400)
-				}
-
+			if (user.is_verified && user.is_active) {
 				await auth.use('jwt').attempt(data.email, data.password)
 
 				// generate jwt
@@ -39,11 +30,20 @@ export default class LoginController {
 					'',
 					200
 				)
+			} else {
+				Response(
+					response,
+					false,
+					user.is_active ? 'Your account is not verified' : 'Your account has been disable',
+					'',
+					'',
+					user.is_active ? 400 : 404
+				)
 			}
 		} catch (error) {
 			Logger.error(error)
 
-			Response(response, false, 'Combination email & password not match', '', error, 200)
+			Response(response, false, 'Combination email & password not match', '', error, 404)
 		}
 	}
 }
