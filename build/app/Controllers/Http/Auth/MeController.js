@@ -10,7 +10,7 @@ class MeController {
         try {
             await auth.use('jwt').authenticate();
             const userPayloadFromJwt = auth.use('jwt').payload;
-            (0, Response_1.Response)(response, true, `Your credential is valid`, { userPayloadFromJwt });
+            (0, Response_1.Response)(response, true, `Your credential is valid`, userPayloadFromJwt);
         }
         catch (error) {
             Logger_1.default.error(error);
