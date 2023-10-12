@@ -39,7 +39,7 @@ Route.group(() => {
 		Route.post('/resend-token', 'Auth/ResendTokenController.index')
 		Route.post('/login', 'Auth/LoginController.index')
 		Route.post('/forgot-password', 'Auth/ForgotPasswordController.index')
-		Route.post('/update-password', 'Auth/Controller.updatePassword')
+		Route.post('/update-password', 'Auth/UpdatePasswordByTokenController.index')
 		Route.get('/me', 'Auth/MeController.index')
 	}).prefix('auth')
 })
