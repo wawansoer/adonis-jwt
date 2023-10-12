@@ -48,7 +48,14 @@ export default class RegisterController {
 			let errorMessage = error.messages
 				? 'Validation failed'
 				: 'Failed to send email confirmation'
-			Response(response, false, errorMessage, '', error, error.messages ? 400 : 500)
+			Response(
+				response,
+				false,
+				errorMessage,
+				error.messages.errors ?? '',
+				error,
+				error.messages ? 400 : 500
+			)
 		}
 	}
 }
