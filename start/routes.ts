@@ -34,13 +34,20 @@ Route.get('health', async ({ response }) => {
 
 Route.group(() => {
 	Route.group(() => {
-		Route.post('/register', 'AuthController.register')
-		Route.get('/verify-email', 'AuthController.verifyEmail')
-		Route.post('/resend-token', 'AuthController.resendToken')
-		Route.post('/login', 'AuthController.login')
-		Route.post('/forgot-password', 'AuthController.forgotPassword')
-		Route.post('/update-password', 'AuthController.updatePassword')
+		Route.post('/register', 'Auth/RegisterController.index')
+		Route.get('/verify-email', 'Auth/VerifyEmailController.index')
+		Route.post('/resend-token', 'Auth/ResendTokenController.index')
+		Route.post('/login', 'Auth/LoginController.index')
+		Route.post('/forgot-password', 'Auth/ForgotPasswordController.index')
+		Route.post('/update-password', 'Auth/UpdatePasswordByTokenController.index')
+		Route.get('/me', 'Auth/MeController.index')
 	}).prefix('auth')
 })
 	.prefix('api/v1/')
 	.middleware('throttle:global')
+
+Route.group(() => {
+	Route.resource('/user-detail', 'UserDetailsController').apiOnly()
+})
+	.prefix('api/v1')
+	.middleware(['auth:jwt', 'throttle:global'])
