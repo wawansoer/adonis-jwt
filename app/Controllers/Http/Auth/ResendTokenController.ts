@@ -3,6 +3,7 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
 import User from '../../../Models/User'
 import AuthService from '../../../Services/AuthService'
+import { Response } from '../../../Interfaces/Response'
 
 export default class ResendTokenController {
 	private authService: AuthService
@@ -20,16 +21,14 @@ export default class ResendTokenController {
 			if (params.email) {
 				const user = await User.query()
 					.where('email', params.email)
-					.where('is_verified', 0)
+					.where('is_active', true)
+					.where('is_verified', false)
 					.firstOrFail()
 
 				const token = await this.authService.generateToken(user.id, 'Account Verification', trx)
 				await this.authService.sendEmail(user, token, 'Account Verification')
 				await trx.commit()
-				return response.status(200).json({
-					success: true,
-					message: `Successfully sent token to ${user.email}`,
-				})
+				Response(response, 200, true, `Successfully sent token to ${user.email}`)
 			}
 		} catch (error) {
 			Logger.error(error)
@@ -37,12 +36,14 @@ export default class ResendTokenController {
 			if (trx && trx.isTransaction) {
 				await trx.rollback()
 			}
-
-			return response.status(500).json({
-				success: false,
-				message: 'Your account is not registered or has active',
-				error: error.message,
-			})
+			Response(
+				response,
+				500,
+				false,
+				'Your account is not registered or has active',
+				'',
+				error.messages
+			)
 		}
 	}
 }

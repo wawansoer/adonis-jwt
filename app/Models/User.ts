@@ -1,15 +1,19 @@
-import { DateTime } from 'luxon'
-import Hash from '@ioc:Adonis/Core/Hash'
 import {
 	BaseModel,
 	beforeSave,
 	beforeCreate,
 	column,
-	manyToMany,
-	ManyToMany,
+	hasOne,
+	HasOne,
+	hasMany,
+	HasMany,
 } from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from 'luxon'
+import Hash from '@ioc:Adonis/Core/Hash'
 import { v4 as uuid } from 'uuid'
 import Role from './Role'
+import UserDetail from './UserDetail'
+import ApiToken from './ApiToken'
 
 export default class User extends BaseModel {
 	@column({ isPrimary: true })
@@ -51,6 +55,12 @@ export default class User extends BaseModel {
 		model.id = uuid()
 	}
 
-	@manyToMany(() => Role)
-	public roles: ManyToMany<typeof Role>
+	@hasOne(() => Role)
+	public role: HasOne<typeof Role>
+
+	@hasOne(() => UserDetail)
+	public userDetail: HasOne<typeof UserDetail>
+
+	@hasMany(() => ApiToken)
+	public apiToken: HasMany<typeof ApiToken>
 }

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, beforeCreate, column, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import { v4 as uuid } from 'uuid'
 import User from './User'
 
@@ -30,6 +30,6 @@ export default class Role extends BaseModel {
 		model.id = uuid()
 	}
 
-	@manyToMany(() => User)
-	public users: ManyToMany<typeof User>
+	@hasOne(() => User)
+	public users: HasOne<typeof User>
 }

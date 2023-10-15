@@ -11,9 +11,6 @@ export default class ApiToken extends BaseModel {
 	@column()
 	public userId: string
 
-	@belongsTo(() => User)
-	public user: BelongsTo<typeof User>
-
 	@column()
 	public name: string
 
@@ -36,4 +33,7 @@ export default class ApiToken extends BaseModel {
 	public static async createUUID(model: ApiToken) {
 		model.id = uuid()
 	}
+
+	@belongsTo(() => User)
+	public user: BelongsTo<typeof User>
 }

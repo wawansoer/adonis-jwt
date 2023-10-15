@@ -14,34 +14,31 @@ export default class UpdatePasswordByTokenController {
 		try {
 			const data = await request.validate(UpdatePasswordValidator)
 
-			const apiToken = await ApiToken.query()
-				.where('token', data.token)
-				.where('expires_at', '>=', DateTime.now().toString())
+			const user = await User.query()
+				.preload('apiToken', (tokenQuery) => {
+					tokenQuery
+						.where('token', data.token)
+						.where('expires_at', '>=', DateTime.now().toString())
+				})
+				.where('email', data.email)
 				.firstOrFail()
 
-			const user = await User.findBy('email', data.email)
+			await ApiToken.query().where('id', user.apiToken[0].id).delete()
 
-			if (user) {
-				user.password = data.password
+			user.password = data.password
+			await user.save()
 
-				await user.save()
-
-				await apiToken.delete()
-
-				Response(response, true, `Congratulation. Your password is updated.`)
-			} else {
-				Response(response, false, `User not found`, '', '', 404)
-			}
+			Response(response, 200, true, `Congratulation. Your password is updated.`, data)
 		} catch (error) {
 			Logger.error(error)
 
 			Response(
 				response,
+				400,
 				false,
 				`Failed to update your password. Make sure you have a correct link`,
 				'',
-				error,
-				400
+				error
 			)
 		}
 	}

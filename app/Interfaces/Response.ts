@@ -9,11 +9,11 @@ interface ApiResponse<T> {
 
 function Response<T>(
 	response: ResponseContract,
+	status = 200,
 	success: boolean,
 	message?: string,
 	data?: T,
-	error?: string | Record<string, any>,
-	status = 200
+	error?: string | Record<string, any>
 ): void {
 	const responseBody: ApiResponse<T> = {
 		success,

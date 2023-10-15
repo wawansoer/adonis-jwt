@@ -31,30 +31,22 @@ export default class RegisterController {
 			const token = await this.authService.generateToken(user.id, 'Account Verification', trx)
 			await this.authService.sendEmail(user, token, 'Account Verification')
 			await trx.commit()
-			Response(
-				response,
-				true,
-				'Successfully registered. Please confirm email to login!',
-				'',
-				'',
-				201
-			)
+			Response(response, 201, true, 'Successfully registered. Please confirm email to login!')
 		} catch (error) {
 			Logger.error(error)
 			if (trx && trx.isTransaction) {
 				await trx.rollback()
 			}
-
 			let errorMessage = error.messages
 				? 'Validation failed'
 				: 'Failed to send email confirmation'
 			Response(
 				response,
+				error.messages ? 400 : 500,
 				false,
 				errorMessage,
 				error.messages.errors ?? '',
-				error,
-				error.messages ? 400 : 500
+				error
 			)
 		}
 	}

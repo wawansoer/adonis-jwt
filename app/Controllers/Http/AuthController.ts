@@ -229,7 +229,7 @@ export default class AuthController {
 			const user = await User.query()
 				.where('email', data.email)
 				.where('is_active', 1)
-				.preload('roles')
+				.preload('role')
 				.firstOrFail()
 
 			if (user) {

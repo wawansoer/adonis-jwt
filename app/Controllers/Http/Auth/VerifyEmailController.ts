@@ -17,16 +17,21 @@ export default class VerifyEmailController {
 			user.is_verified = true
 			await user.save()
 			await apiToken.delete()
-			Response(response, true, 'Congratulation your email has been verified. Please Login !')
+			Response(
+				response,
+				200,
+				true,
+				'Congratulation your email has been verified. Please Login !'
+			)
 		} catch (error) {
 			Logger.error(error)
 			Response(
 				response,
+				404,
 				false,
 				'Your token is expired or you are not registered yet',
 				'',
-				error,
-				404
+				error
 			)
 		}
 	}
