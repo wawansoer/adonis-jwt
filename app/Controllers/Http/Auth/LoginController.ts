@@ -34,17 +34,14 @@ export default class LoginController {
 				// generate jwt
 				jwt = await auth.use('jwt').login(user, { payload: { user: user } })
 				// Response(response, 200, true, 'Successfully Login!', { user: user, access_token: jwt })
-				return response
-					.safeHeader('authorization', `Bearer ${jwt.accessToken}`)
-					.status(200)
-					.json({
-						success: true,
-						data: {
-							user: user,
-							access_token: jwt,
-						},
-						message: 'Successfully Login!',
-					})
+				return response.status(200).json({
+					success: true,
+					data: {
+						user: user,
+						access_token: jwt,
+					},
+					message: 'Successfully Login!',
+				})
 			} else {
 				Response(response, 400, false, 'Your account is not verified')
 			}
