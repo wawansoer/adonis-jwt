@@ -7,6 +7,8 @@ import {
 	HasOne,
 	hasMany,
 	HasMany,
+	manyToMany,
+	ManyToMany,
 } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
 import Hash from '@ioc:Adonis/Core/Hash'
@@ -55,8 +57,8 @@ export default class User extends BaseModel {
 		model.id = uuid()
 	}
 
-	@hasOne(() => Role)
-	public role: HasOne<typeof Role>
+	@manyToMany(() => Role)
+	public roles: ManyToMany<typeof Role>
 
 	@hasOne(() => UserDetail)
 	public userDetail: HasOne<typeof UserDetail>
