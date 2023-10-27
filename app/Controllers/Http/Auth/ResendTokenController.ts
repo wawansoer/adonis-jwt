@@ -36,14 +36,11 @@ export default class ResendTokenController {
 			if (trx && trx.isTransaction) {
 				await trx.rollback()
 			}
-			Response(
-				response,
-				500,
-				false,
-				'Your account is not registered or has active',
-				'',
-				error.messages
-			)
+			const msg =
+				error.responseCode === 550
+					? 'You have invalid email address'
+					: 'Your account is not registered or has active'
+			Response(response, error.responseCode === 550 ? 500 : 404, false, msg, '', error)
 		}
 	}
 }
