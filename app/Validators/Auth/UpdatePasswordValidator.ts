@@ -26,7 +26,7 @@ export default class UpdatePasswordValidator {
 	public schema = schema.create({
 		email: schema.string({ trim: true }, [rules.email()]),
 		password: schema.string({ trim: true }, [rules.minLength(8)]),
-		token: schema.string({ trim: true }, [rules.uuid({ version: 4 })]),
+		token: schema.string({ trim: true }, [rules.minLength(64)]),
 	})
 
 	/**
@@ -45,6 +45,5 @@ export default class UpdatePasswordValidator {
 		'email.email': 'Invalid email address format',
 		'minLength': '{{ field }} must be at least {{ options.minLength }} characters long',
 		'maxLength': '{{ field }} must be less then {{ options.maxLength }} characters long',
-		'token.uuid': 'Invalid token format',
 	}
 }
