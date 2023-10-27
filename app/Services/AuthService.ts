@@ -1,10 +1,12 @@
+import Mail from '@ioc:Adonis/Addons/Mail'
+import Env from '@ioc:Adonis/Core/Env'
+import { DateTime } from 'luxon'
+import { string } from '@ioc:Adonis/Core/Helpers'
+
 import User from '../Models/User'
 import RoleUser from '../Models/RoleUser'
 import ApiToken from '../Models/ApiToken'
-import { DateTime } from 'luxon'
-import { v4 as uuid } from 'uuid'
-import Mail from '@ioc:Adonis/Addons/Mail'
-import Env from '@ioc:Adonis/Core/Env'
+import UserDetail from '../Models/UserDetail'
 enum EmailAction {
 	Verification = 'Account Verification',
 	ResetPassword = 'Reset Password',
@@ -37,6 +39,15 @@ export default class AuthService {
 	}
 
 	/**
+	 * Insert a new user detail and save to database.
+	 */
+	public async initUserDetail(user_id: string, trx: any): Promise<UserDetail> {
+		const userDetail = new UserDetail()
+		userDetail.userId = user_id
+		return await userDetail.useTransaction(trx).save()
+	}
+
+	/**
 	 * Generate a verification token for the given user and save it to the database.
 	 */
 	public async generateToken(userId: string, tokenName: string, trx: any): Promise<ApiToken> {
@@ -44,8 +55,8 @@ export default class AuthService {
 		token.userId = userId
 		token.name = tokenName
 		token.type = 'UUID'
-		token.token = uuid()
-		token.expiresAt = DateTime.now().plus({ hours: 6 })
+		token.token = string.generateRandom(64)
+		token.expiresAt = DateTime.now().plus({ hours: 24 })
 
 		await token.useTransaction(trx).save()
 
@@ -68,7 +79,7 @@ export default class AuthService {
 			msg = `reset your password.`
 		}
 
-		await Mail.send((message) => {
+		await Mail.sendLater((message) => {
 			message
 				.from(Env.get('SMTP_USERNAME'))
 				.to(user.email)
