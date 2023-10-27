@@ -17,12 +17,7 @@ export default class VerifyEmailController {
 			user.is_verified = true
 			await user.save()
 			await apiToken.delete()
-			Response(
-				response,
-				200,
-				true,
-				'Congratulation your email has been verified. Please Login !'
-			)
+			Response(response, 200, true, 'Congratulation your email has been verified.')
 		} catch (error) {
 			Logger.error(error)
 			Response(
