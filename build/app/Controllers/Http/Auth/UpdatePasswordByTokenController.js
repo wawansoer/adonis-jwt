@@ -13,24 +13,22 @@ class UpdatePasswordByTokenController {
     async index({ request, response }) {
         try {
             const data = await request.validate(UpdatePasswordValidator_1.default);
-            const apiToken = await ApiToken_1.default.query()
-                .where('token', data.token)
-                .where('expires_at', '>=', luxon_1.DateTime.now().toString())
+            const user = await User_1.default.query()
+                .preload('apiToken', (tokenQuery) => {
+                tokenQuery
+                    .where('token', data.token)
+                    .where('expires_at', '>=', luxon_1.DateTime.now().toString());
+            })
+                .where('email', data.email)
                 .firstOrFail();
-            const user = await User_1.default.findBy('email', data.email);
-            if (user) {
-                user.password = data.password;
-                await user.save();
-                await apiToken.delete();
-                (0, Response_1.Response)(response, true, `Congratulation. Your password is updated.`);
-            }
-            else {
-                (0, Response_1.Response)(response, false, `User not found`, '', '', 404);
-            }
+            await ApiToken_1.default.query().where('id', user.apiToken[0].id).delete();
+            user.password = data.password;
+            await user.save();
+            (0, Response_1.Response)(response, 200, true, `Congratulation. Your password is updated.`, data);
         }
         catch (error) {
             Logger_1.default.error(error);
-            (0, Response_1.Response)(response, false, `Failed to update your password. Make sure you have a correct link`, '', error, 400);
+            (0, Response_1.Response)(response, 400, false, `Failed to update your password. Make sure you have a correct link`, '', error);
         }
     }
 }

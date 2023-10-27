@@ -31,11 +31,11 @@ __decorate([
     __metadata("design:type", String)
 ], Role.prototype, "slug", void 0);
 __decorate([
-    (0, Orm_1.column)(),
+    (0, Orm_1.column)({ serializeAs: null }),
     __metadata("design:type", String)
 ], Role.prototype, "name", void 0);
 __decorate([
-    (0, Orm_1.column)(),
+    (0, Orm_1.column)({ serializeAs: null }),
     __metadata("design:type", Object)
 ], Role.prototype, "description", void 0);
 __decorate([
