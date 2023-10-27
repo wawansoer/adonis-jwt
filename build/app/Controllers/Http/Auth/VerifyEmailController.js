@@ -20,11 +20,11 @@ class VerifyEmailController {
             user.is_verified = true;
             await user.save();
             await apiToken.delete();
-            (0, Response_1.Response)(response, true, 'Congratulation your email has been verified. Please Login !');
+            (0, Response_1.Response)(response, 200, true, 'Congratulation your email has been verified.');
         }
         catch (error) {
             Logger_1.default.error(error);
-            (0, Response_1.Response)(response, false, 'Your token is expired or you are not registered yet', '', error, 404);
+            (0, Response_1.Response)(response, 404, false, 'Your token is expired or you are not registered yet', '', error);
         }
     }
 }

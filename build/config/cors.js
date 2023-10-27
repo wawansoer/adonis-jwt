@@ -4,6 +4,7 @@ const corsConfig = {
     enabled: true,
     origin: (requestOrigin) => {
         const allowedOrigins = [
+            'http://localhost:6173',
             'http://localhost:5173',
             'https://vue.onecodeforlife.my.id',
             'https://carwash.onecodeforlife.my.id',

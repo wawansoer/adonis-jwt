@@ -7,6 +7,7 @@ const Database_1 = __importDefault(global[Symbol.for('ioc.use')]("Adonis/Lucid/D
 const Logger_1 = __importDefault(global[Symbol.for('ioc.use')]("Adonis/Core/Logger"));
 const User_1 = __importDefault(require("../../../Models/User"));
 const AuthService_1 = __importDefault(require("../../../Services/AuthService"));
+const Response_1 = require("../../../Interfaces/Response");
 class ResendTokenController {
     constructor() {
         this.authService = new AuthService_1.default();
@@ -18,15 +19,13 @@ class ResendTokenController {
             if (params.email) {
                 const user = await User_1.default.query()
                     .where('email', params.email)
-                    .where('is_verified', 0)
+                    .where('is_active', true)
+                    .where('is_verified', false)
                     .firstOrFail();
                 const token = await this.authService.generateToken(user.id, 'Account Verification', trx);
                 await this.authService.sendEmail(user, token, 'Account Verification');
                 await trx.commit();
-                return response.status(200).json({
-                    success: true,
-                    message: `Successfully sent token to ${user.email}`,
-                });
+                (0, Response_1.Response)(response, 200, true, `Successfully sent token to ${user.email}`);
             }
         }
         catch (error) {
@@ -34,11 +33,10 @@ class ResendTokenController {
             if (trx && trx.isTransaction) {
                 await trx.rollback();
             }
-            return response.status(500).json({
-                success: false,
-                message: 'Your account is not registered or has active',
-                error: error.message,
-            });
+            const msg = error.responseCode === 550
+                ? 'You have invalid email address'
+                : 'Your account is not registered or has active';
+            (0, Response_1.Response)(response, error.responseCode === 550 ? 500 : 404, false, msg, '', error);
         }
     }
 }

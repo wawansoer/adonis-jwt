@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Mail_1 = __importDefault(global[Symbol.for('ioc.use')]("Adonis/Addons/Mail"));
+const Env_1 = __importDefault(global[Symbol.for('ioc.use')]("Adonis/Core/Env"));
+const luxon_1 = require("luxon");
+const Helpers_1 = global[Symbol.for('ioc.use')]("Adonis/Core/Helpers");
 const User_1 = __importDefault(require("../Models/User"));
 const RoleUser_1 = __importDefault(require("../Models/RoleUser"));
 const ApiToken_1 = __importDefault(require("../Models/ApiToken"));
-const luxon_1 = require("luxon");
-const uuid_1 = require("uuid");
-const Mail_1 = __importDefault(global[Symbol.for('ioc.use')]("Adonis/Addons/Mail"));
-const Env_1 = __importDefault(global[Symbol.for('ioc.use')]("Adonis/Core/Env"));
+const UserDetail_1 = __importDefault(require("../Models/UserDetail"));
 var EmailAction;
 (function (EmailAction) {
     EmailAction["Verification"] = "Account Verification";
@@ -29,13 +30,18 @@ class AuthService {
         roleUser.roleId = role_id;
         return await roleUser.useTransaction(trx).save();
     }
+    async initUserDetail(user_id, trx) {
+        const userDetail = new UserDetail_1.default();
+        userDetail.userId = user_id;
+        return await userDetail.useTransaction(trx).save();
+    }
     async generateToken(userId, tokenName, trx) {
         const token = new ApiToken_1.default();
         token.userId = userId;
         token.name = tokenName;
         token.type = 'UUID';
-        token.token = (0, uuid_1.v4)();
-        token.expiresAt = luxon_1.DateTime.now().plus({ hours: 6 });
+        token.token = Helpers_1.string.generateRandom(64);
+        token.expiresAt = luxon_1.DateTime.now().plus({ hours: 24 });
         await token.useTransaction(trx).save();
         return token;
     }
@@ -51,7 +57,7 @@ class AuthService {
             url = `${baseUrl}/update-password?token=${token.token}&email=${user.email}`;
             msg = `reset your password.`;
         }
-        await Mail_1.default.send((message) => {
+        await Mail_1.default.sendLater((message) => {
             message
                 .from(Env_1.default.get('SMTP_USERNAME'))
                 .to(user.email)

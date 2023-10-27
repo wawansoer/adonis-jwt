@@ -31,10 +31,6 @@ __decorate([
     __metadata("design:type", String)
 ], ApiToken.prototype, "userId", void 0);
 __decorate([
-    (0, Orm_1.belongsTo)(() => User_1.default),
-    __metadata("design:type", Object)
-], ApiToken.prototype, "user", void 0);
-__decorate([
     (0, Orm_1.column)(),
     __metadata("design:type", String)
 ], ApiToken.prototype, "name", void 0);
@@ -58,6 +54,10 @@ __decorate([
     Orm_1.column.dateTime({ columnName: 'expires_at' }),
     __metadata("design:type", Object)
 ], ApiToken.prototype, "expiresAt", void 0);
+__decorate([
+    (0, Orm_1.belongsTo)(() => User_1.default),
+    __metadata("design:type", Object)
+], ApiToken.prototype, "user", void 0);
 __decorate([
     (0, Decorators_1.beforeCreate)(),
     __metadata("design:type", Function),
