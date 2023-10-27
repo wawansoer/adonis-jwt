@@ -12,11 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Orm_1 = global[Symbol.for('ioc.use')]("Adonis/Lucid/Orm");
 const luxon_1 = require("luxon");
 const Hash_1 = __importDefault(global[Symbol.for('ioc.use')]("Adonis/Core/Hash"));
-const Orm_1 = global[Symbol.for('ioc.use')]("Adonis/Lucid/Orm");
 const uuid_1 = require("uuid");
 const Role_1 = __importDefault(require("./Role"));
+const UserDetail_1 = __importDefault(require("./UserDetail"));
+const ApiToken_1 = __importDefault(require("./ApiToken"));
 class User extends Orm_1.BaseModel {
     static async hashPassword(user) {
         if (user.$dirty.password) {
@@ -67,6 +69,14 @@ __decorate([
     (0, Orm_1.manyToMany)(() => Role_1.default),
     __metadata("design:type", Object)
 ], User.prototype, "roles", void 0);
+__decorate([
+    (0, Orm_1.hasOne)(() => UserDetail_1.default),
+    __metadata("design:type", Object)
+], User.prototype, "userDetail", void 0);
+__decorate([
+    (0, Orm_1.hasMany)(() => ApiToken_1.default),
+    __metadata("design:type", Object)
+], User.prototype, "apiToken", void 0);
 __decorate([
     (0, Orm_1.beforeSave)(),
     __metadata("design:type", Function),

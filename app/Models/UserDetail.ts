@@ -1,15 +1,16 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, HasOne, beforeCreate, column, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import { v4 as uuid } from 'uuid'
+import User from './User'
 
 export default class UserDetail extends BaseModel {
 	public static table = 'user_details'
 
-	@column({ isPrimary: true })
+	@column({ isPrimary: true, serializeAs: null })
 	public id: string
 
 	@column()
-	public user_id: string
+	public userId: string
 
 	@column()
 	public nik: string
@@ -42,4 +43,7 @@ export default class UserDetail extends BaseModel {
 	public static async createUUID(model: UserDetail) {
 		model.id = uuid()
 	}
+
+	@hasOne(() => User)
+	public user: HasOne<typeof User>
 }

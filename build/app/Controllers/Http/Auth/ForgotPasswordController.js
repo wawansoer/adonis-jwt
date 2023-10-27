@@ -17,19 +17,22 @@ class ForgotPasswordController {
         const trx = await Database_1.default.transaction();
         try {
             const data = await request.validate(ForgotPasswordValidator_1.default);
-            const user = await User_1.default.query().where('email', data.email).firstOrFail();
-            if (!user.is_verified || !user.is_active) {
-                (0, Response_1.Response)(response, false, 'Your account is not verified yet or has been banned', '', '', 400);
+            const user = await User_1.default.query()
+                .where('email', data.email)
+                .where('is_active', true)
+                .firstOrFail();
+            if (!user.is_verified) {
+                (0, Response_1.Response)(response, 400, false, 'Your account is not verified yet or has been banned');
             }
             const token = await this.authService.generateToken(user.id, 'Reset Password', trx);
             await this.authService.sendEmail(user, token, 'Reset Password');
             await trx.commit();
-            (0, Response_1.Response)(response, true, `Reset password link has been sent to ${data.email}`, '', '', 200);
+            (0, Response_1.Response)(response, 200, true, `Reset password link has been sent to ${data.email}`);
         }
         catch (error) {
             Logger_1.default.error(error);
             await trx.rollback();
-            (0, Response_1.Response)(response, false, 'Seems your email has not registered in our system', '', error, 200);
+            (0, Response_1.Response)(response, 404, false, 'Seems your email has not registered in our system', '', error);
         }
     }
 }
