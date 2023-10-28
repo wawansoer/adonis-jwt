@@ -58,5 +58,3 @@ Route.group(() => {
 })
 	.prefix('api/v1/')
 	.middleware('throttle:global')
-
-
