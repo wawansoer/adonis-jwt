@@ -27,7 +27,7 @@ Route.get('/', async () => {
 }).middleware('auth:jwt')
 
 // example route using costume jwt to verified user role
-Route.get('health', async ({ response }) => {
+Route.get('/health', async ({ response }) => {
 	const report = await HealthCheck.getReport()
 	return report.healthy ? response.ok(report) : response.badRequest(report)
 }).middleware(['roleIn:guest,root'])
@@ -40,14 +40,23 @@ Route.group(() => {
 		Route.post('/login', 'Auth/LoginController.index')
 		Route.post('/forgot-password', 'Auth/ForgotPasswordController.index')
 		Route.post('/update-password', 'Auth/UpdatePasswordByTokenController.index')
-		Route.get('/me', 'Auth/MeController.index')
 	}).prefix('auth')
 })
 	.prefix('api/v1/')
 	.middleware('throttle:global')
 
 Route.group(() => {
-	Route.resource('/user-detail', 'UserDetailsController').apiOnly()
+	Route.get('/me', 'Auth/MeController.index').as('me')
+
+	Route.put('/update-password', 'Auth/UpdatePasswordByLoginController.index').as(
+		'update.password.auth'
+	)
+	// user detail routes
+	Route.get('/user-detail', 'UserDetailsController.index')
+		.as('show.all.user.detail')
+		.middleware(['roleIn:root'])
+	Route.get('/user-detail/:id', 'UserDetailsController.show').as('show.user.detail')
+	Route.put('/user-detail/:id', 'UserDetailsController.update').as('update.user.detail')
 })
 	.prefix('api/v1')
 	.middleware(['auth:jwt', 'throttle:global'])
