@@ -50,11 +50,11 @@ Route.group(() => {
 		)
 		// user detail routes
 		Route.get('/user-detail', 'UserDetailsController.index')
-			.as('show.all.user.detail')
 			.middleware(['roleIn:root'])
+			.as('show.all.user.detail')
 		Route.get('/user-detail/:id', 'UserDetailsController.show').as('show.user.detail')
 		Route.put('/user-detail/:id', 'UserDetailsController.update').as('update.user.detail')
-	}).middleware(['auth:jwt', 'throttle:global'])
+	}).middleware('auth:jwt')
 })
 	.prefix('api/v1/')
 	.middleware('throttle:global')
