@@ -28,6 +28,9 @@ class User extends Orm_1.BaseModel {
     static async createUUID(model) {
         model.id = (0, uuid_1.v4)();
     }
+    async validatePassword(oldPassword) {
+        return await Hash_1.default.verify(this.password, oldPassword);
+    }
 }
 __decorate([
     (0, Orm_1.column)({ isPrimary: true }),

@@ -12,7 +12,7 @@
 import { Limiter } from '@adonisjs/limiter/build/services'
 
 export const { httpLimiters } = Limiter.define('global', () => {
-	return Limiter.allowRequests(180)
+	return Limiter.allowRequests(120)
 		.every('1 min')
 		.limitExceeded((error) => {
 			error.message = 'Rate limit exceeded'
