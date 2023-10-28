@@ -65,4 +65,8 @@ export default class User extends BaseModel {
 
 	@hasMany(() => ApiToken)
 	public apiToken: HasMany<typeof ApiToken>
+
+	public async validatePassword(oldPassword: string): Promise<boolean> {
+		return await Hash.verify(this.password, oldPassword)
+	}
 }
