@@ -24,11 +24,11 @@ export default Env.rules({
 	FRONT_END_URL: Env.schema.string(),
 
 	DB_CONNECTION: Env.schema.string(),
-	DB_HOST: Env.schema.string({ format: 'host' }),
-	DB_PORT: Env.schema.number(),
-	DB_USER: Env.schema.string(),
-	DB_PASSWORD: Env.schema.string.optional(),
-	DB_NAME: Env.schema.string(),
+	MYSQL_HOST: Env.schema.string({ format: 'host' }),
+	MYSQL_PORT: Env.schema.number(),
+	MYSQL_USER: Env.schema.string(),
+	MYSQL_PASSWORD: Env.schema.string.optional(),
+	MYSQL_DB_NAME: Env.schema.string(),
 
 	SMTP_HOST: Env.schema.string({ format: 'host' }),
 	SMTP_PORT: Env.schema.number(),
