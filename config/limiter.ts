@@ -13,7 +13,7 @@ export default limiterConfig({
 	stores: {
 		db: {
 			client: 'db',
-			dbName: Env.get('DB_NAME'),
+			dbName: Env.get('MYSQL_DB_NAME'),
 			tableName: 'rate_limits',
 			connectionName: Env.get('DB_CONNECTION'),
 			clearExpiredByTimeout: true,
