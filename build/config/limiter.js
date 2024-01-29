@@ -10,7 +10,7 @@ exports.default = (0, config_1.limiterConfig)({
     stores: {
         db: {
             client: 'db',
-            dbName: Env_1.default.get('DB_NAME'),
+            dbName: Env_1.default.get('MYSQL_DB_NAME'),
             tableName: 'rate_limits',
             connectionName: Env_1.default.get('DB_CONNECTION'),
             clearExpiredByTimeout: true,
