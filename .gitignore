@@ -9,3 +9,4 @@ coverage
 tmp
 logs
 .idea
+.pnpm-lock.yaml
