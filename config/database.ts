@@ -33,21 +33,21 @@ const databaseConfig: DatabaseConfig = {
 	 | npm i mysql2
 	 |
 	 */
-		// mysql: {
-		// 	client: 'mysql2',
-		// 	connection: {
-		// 		host: Env.get('MYSQL_HOST'),
-		// 		port: Env.get('MYSQL_PORT'),
-		// 		user: Env.get('MYSQL_USER'),
-		// 		password: Env.get('MYSQL_PASSWORD', ''),
-		// 		database: Env.get('MYSQL_DB_NAME'),
-		// 	},
-		// 	migrations: {
-		// 		naturalSort: true,
-		// 	},
-		// 	healthCheck: true,
-		// 	debug: false,
-		// },
+		mysql: {
+			client: 'mysql2',
+			connection: {
+				host: Env.get('DB_HOST'),
+				port: Env.get('DB_PORT'),
+				user: Env.get('DB_USER'),
+				password: Env.get('DB_PASSWORD', ''),
+			database: Env.get('DB_NAME'),
+		 	},
+		 	migrations: {
+		 		naturalSort: true,
+		},
+		 	healthCheck: true,
+			debug: false,
+		},
 		/*
 		|--------------------------------------------------------------------------
 		| Postgres config
