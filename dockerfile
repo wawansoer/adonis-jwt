@@ -2,7 +2,7 @@ ARG NODE_IMAGE=node:16.13.1-alpine
 
 FROM $NODE_IMAGE AS base
 RUN apk --no-cache add dumb-init
-RUN mkdir -p /home/node/app && chown node:node /home/node/app
+RUN mkdir -p /data/coolify/applications/cocg8s0/app && chown node:node /data/coolify/applications/cocg8s0/app
 WORKDIR /home/node/app
 USER node
 RUN mkdir tmp
@@ -21,7 +21,7 @@ ENV PORT=$PORT
 ENV HOST=0.0.0.0
 COPY --chown=node:node ./package*.json ./
 RUN npm ci --production
-COPY --chown=node:node --from=build /home/node/app/build .
+COPY --chown=node:node --from=build /data/coolify/applications/cocg8s0/app/build .
 EXPOSE $PORT
 
 # Install PM2 globally
