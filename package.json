@@ -7,6 +7,7 @@
 		"build": "node ace build --production",
 		"start": "node ace serve",
 		"test": "node ace test",
+		"prod" : "cd build && npm ci --production && node server.js",
 		"lint": "eslint . --ext=.ts",
 		"format": "prettier --write ."
 	},
