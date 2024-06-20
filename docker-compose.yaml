@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./:/data/coolify/applications/cocg8s0/app
+      - /app/storage
       # Uncomment the below line if you developing on MacOS
       #- /home/node/app/node_modules
     command: dumb-init node ace serve --watch --node-args="--inspect=0.0.0.0"
