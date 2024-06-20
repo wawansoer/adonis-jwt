@@ -2,7 +2,7 @@ ARG NODE_IMAGE=node:16.13.1-alpine
 
 FROM $NODE_IMAGE AS base
 RUN apk --no-cache add dumb-init
-WORKDIR /app/storage
+WORKDIR /app
 USER root
 RUN mkdir tmp
 
@@ -15,11 +15,10 @@ FROM dependencies AS build
 RUN node ace build --production
 
 FROM base AS production
-ENV NODE_ENV=production
 ENV PORT=$PORT
 COPY --chown=node:node ./package*.json ./
 RUN npm ci --production
-COPY --chown=node:node --from=build /app/storage/build .
+COPY --chown=node:node --from=build /app/build .
 EXPOSE $PORT
 
 # Install PM2 globally
