@@ -23,6 +23,7 @@ COPY --chown=node:node ./package*.json ./
 RUN npm ci --production
 COPY --chown=node:node --from=build /home/node/app/build .
 EXPOSE $PORT
+
 # Install PM2 globally
 RUN npm install pm2 -g
 
