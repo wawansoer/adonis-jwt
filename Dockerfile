@@ -1,18 +1,26 @@
-FROM node:18.20.0-alpine
+ARG NODE_IMAGE=node:16.13.1-alpine
 
-# Install PM2
-RUN apk add --no-cache npm
+FROM $NODE_IMAGE AS base
+RUN apk --no-cache add dumb-init
+RUN chown node:node /
+WORKDIR /
+USER node
+RUN mkdir tmp
 
-# Install production dependencies
-WORKDIR /usr/src/app
-COPY package*.json ./
+FROM base AS dependencies
+COPY --chown=node:node ./package*.json ./
 RUN npm ci --omit=dev
+COPY --chown=node:node . .
 
-# Copy the rest of the app
-COPY . .
+FROM dependencies AS build
+RUN node ace build --production
 
-# Expose port
-EXPOSE 3000
-
-# Start the application
-CMD [ "node", "server.js" ]
+FROM base AS production
+ENV NODE_ENV=production
+ENV PORT=$PORT
+ENV HOST=0.0.0.0
+COPY --chown=node:node ./package*.json ./
+RUN npm ci --production
+COPY --chown=node:node --from=build /build .
+EXPOSE $PORT
+CMD [ "dumb-init", "node", "server.js" ]
