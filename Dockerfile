@@ -24,8 +24,5 @@ RUN npm ci --production
 COPY --chown=node:node --from=build /home/node/app/build .
 EXPOSE $PORT
 
-# Install PM2 globally
-RUN npm install -g pm2
-
 # Start the application with PM2
-CMD ["dumb-init", "pm2-runtime", "start", "server.js"]
+CMD [ "dumb-init", "node", "server.js" ]
