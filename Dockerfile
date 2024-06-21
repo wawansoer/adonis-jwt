@@ -1,26 +1,13 @@
-ARG NODE_IMAGE=node:18.20.0-alpine
+FROM node:18.20.0-alpine
 
-FROM $NODE_IMAGE AS base
-RUN apk --no-cache add dumb-init
-RUN mkdir -p /home/node/app && chown node:node /home/node/app
-WORKDIR /home/node/app
-USER node
-RUN mkdir tmp
+WORKDIR /
 
-FROM base AS dependencies
-COPY --chown=node:node ./package*.json ./
-RUN npm install
-COPY --chown=node:node . .
+COPY package*.json ./
 
-FROM dependencies AS build
-RUN node ace build --production
+COPY . .
 
-FROM base AS production
-ENV NODE_ENV=production
-ENV PORT=$PORT
-ENV HOST=0.0.0.0
-COPY --chown=node:node ./package*.json ./
 RUN npm ci --omit=dev
-COPY --chown=node:node --from=build /home/node/app/build .
+RUN npm run build --production
+
 EXPOSE $PORT
 CMD [ "dumb-init", "node", "server.js" ]
