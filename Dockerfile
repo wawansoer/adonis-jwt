@@ -10,7 +10,6 @@ RUN npm ci --omit=dev
 FROM dependencies AS build
 RUN node ace build --production
 
-FROM base AS production
 ENV NODE_ENV=production
 ENV PORT=$PORT
 ENV HOST=0.0.0.0
