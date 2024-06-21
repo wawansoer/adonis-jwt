@@ -14,7 +14,6 @@ ENV NODE_ENV=production
 ENV PORT=$PORT
 ENV HOST=0.0.0.0
 
-COPY --from=build /build .
 RUN npm ci --omit=dev
 
 ENV PORT=$PORT
