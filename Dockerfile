@@ -1,10 +1,10 @@
-ARG NODE_IMAGE=node:16.13.1-alpine
+ARG NODE_IMAGE=node:18.20.0-alpine
 
 FROM $NODE_IMAGE AS base
 RUN apk --no-cache add dumb-init
 RUN mkdir -p /home/node/app && chown node:node /home/node/app
 WORKDIR /home/node/app
-USER root
+USER node
 RUN mkdir tmp
 
 FROM base AS dependencies
@@ -24,4 +24,3 @@ RUN npm ci --production
 COPY --chown=node:node --from=build /home/node/app/build .
 EXPOSE $PORT
 CMD [ "dumb-init", "node", "server.js" ]
-
