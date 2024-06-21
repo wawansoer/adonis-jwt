@@ -7,13 +7,7 @@ COPY . .
 
 RUN npm ci --omit=dev
 
-RUN node ace build
-
-ENV NODE_ENV=production
-ENV PORT=$PORT
-ENV HOST=0.0.0.0
-
-RUN npm ci --omit=dev
+RUN npm run build
 
 ENV PORT=$PORT
 EXPOSE $PORT
