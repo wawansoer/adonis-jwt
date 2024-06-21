@@ -7,7 +7,6 @@ COPY . .
 
 RUN npm ci --omit=dev
 
-FROM dependencies AS build
 RUN node ace build --production
 
 ENV NODE_ENV=production
