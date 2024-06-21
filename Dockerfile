@@ -5,7 +5,6 @@ RUN apk --no-cache add dumb-init
 RUN chown node:node /
 WORKDIR /
 USER node
-RUN mkdir tmp
 
 FROM base AS dependencies
 COPY --chown=node:node ./package*.json ./
