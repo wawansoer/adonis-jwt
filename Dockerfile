@@ -1,17 +1,19 @@
 FROM node:18.20.0-alpine
 
-WORKDIR /
+# Install PM2
+RUN apk add --no-cache npm
+RUN npm install -g pm2@latest
 
+# Install production dependencies
+WORKDIR /usr/src/app
 COPY package*.json ./
-COPY . .
-
 RUN npm ci --omit=dev
 
-RUN npm run build
+# Copy the rest of the app
+COPY . .
 
-ENV PORT=$PORT
-EXPOSE $PORT
+# Expose port
+EXPOSE 3000
 
-RUN npm install pm2 -g
-
-CMD [ "pm2-runtime", "start", "server.js" ]
+# Start the application
+CMD [ "pm2-runtime", "start", "npm", "run", "start:prod" ]
