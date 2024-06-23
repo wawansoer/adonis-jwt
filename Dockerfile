@@ -16,9 +16,6 @@ COPY . .
 # Membangun aplikasi AdonisJS
 RUN npm run build
 
-# Menjalankan perintah migration sebelum menjalankan aplikasi
-RUN npm run migration
-
 # Menexpose port yang digunakan oleh aplikasi AdonisJS (default 3333)
 EXPOSE 4444
 
