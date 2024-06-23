@@ -10,29 +10,29 @@ import type { DatabaseConfig } from '@ioc:Adonis/Lucid/Database'
 
 const databaseConfig: DatabaseConfig = {
 	/*
-  |--------------------------------------------------------------------------
-  | Connection
-  |--------------------------------------------------------------------------
-  |
-  | The primary connection for making database queries across the application
-  | You can use any key from the `connections` object defined in this same
-  | file.
-  |
-  */
+	|--------------------------------------------------------------------------
+	| Connection
+	|--------------------------------------------------------------------------
+	|
+	| The primary connection for making database queries across the application
+	| You can use any key from the `connections` object defined in this same
+	| file.
+	|
+	*/
 	connection: Env.get('DB_CONNECTION'),
 
 	connections: {
 		/*
-	 |--------------------------------------------------------------------------
-	 | MySQL config
-	 |--------------------------------------------------------------------------
-	 |
-	 | Configuration for MySQL database. Make sure to install the driver
-	 | from npm when using this connection
-	 |
-	 | npm i mysql2
-	 |
-	 */
+	|--------------------------------------------------------------------------
+	| MySQL config
+	|--------------------------------------------------------------------------
+	|
+	| Configuration for MySQL database. Make sure to install the driver
+	| from npm when using this connection
+	|
+	| npm i mysql2
+	|
+	*/
 		mysql: {
 			client: 'mysql2',
 			connection: {
@@ -40,12 +40,12 @@ const databaseConfig: DatabaseConfig = {
 				port: Env.get('DB_PORT'),
 				user: Env.get('DB_USER'),
 				password: Env.get('DB_PASSWORD', ''),
-			database: Env.get('DB_NAME'),
-		 	},
-		 	migrations: {
-		 		naturalSort: true,
-		},
-		 	healthCheck: true,
+				database: Env.get('DB_NAME'),
+			},
+			migrations: {
+				naturalSort: true,
+			},
+			healthCheck: true,
 			debug: false,
 		},
 		/*

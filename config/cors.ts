@@ -6,6 +6,7 @@
  */
 
 import type { CorsConfig } from '@ioc:Adonis/Core/Cors'
+import Env from '@ioc:Adonis/Core/Env'
 
 const corsConfig: CorsConfig = {
 	/*
@@ -46,12 +47,7 @@ const corsConfig: CorsConfig = {
   */
 	// origin: '*',
 	origin: (requestOrigin) => {
-		const allowedOrigins = [
-			'http://localhost:6173',
-			'http://localhost:5173',
-			'https://vue.onecodeforlife.my.id',
-			'https://carwash.onecodeforlife.my.id',
-		]
+		const allowedOrigins = [Env.get('FRONTEND_URL')]
 
 		if (allowedOrigins.includes(requestOrigin)) {
 			return requestOrigin
