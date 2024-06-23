@@ -9,12 +9,13 @@ COPY package*.json ./
 
 # Menginstall dependencies
 RUN npm install
-RUN node ace migration:run
+
 # Menyalin semua file dari project ke working directory
 COPY . .
 
 # Membangun aplikasi AdonisJS
 RUN npm run build
+RUN node ace migration:run
 
 # Menexpose port yang digunakan oleh aplikasi AdonisJS (default 3333)
 EXPOSE 4444
