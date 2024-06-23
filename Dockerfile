@@ -1,28 +1,23 @@
-ARG NODE_IMAGE=node:16.13.1-alpine
+# Menggunakan node image sebagai base image
+FROM node:16.17.0-alpine
 
-FROM $NODE_IMAGE AS base
-RUN apk --no-cache add dumb-init
-RUN mkdir -p /home/node/app && chown node:node /home/node/app
-WORKDIR /home/node/app
-USER node
-RUN mkdir tmp
+# Menentukan working directory di dalam container
+WORKDIR /app
 
-FROM base AS dependencies
-COPY --chown=node:node ./package*.json ./
-RUN npm ci
-COPY --chown=node:node . .
+# Menyalin file package.json dan package-lock.json ke working directory
+COPY package*.json ./
 
-FROM dependencies AS build
-RUN node ace build --production
+# Menginstall dependencies
+RUN npm install
 
-FROM base AS production
-ENV NODE_ENV=production
-ENV PORT=$PORT
-ENV HOST=0.0.0.0
-COPY --chown=node:node ./package*.json ./
-RUN npm ci --production
-COPY --chown=node:node --from=build /home/node/app/build .
-EXPOSE $PORT
+# Menyalin semua file dari project ke working directory
+COPY . .
 
-# Start the application with PM2
-CMD [ "dumb-init", "node", "server.js" ]
+# Membangun aplikasi AdonisJS
+RUN npm run build
+
+# Menexpose port yang digunakan oleh aplikasi AdonisJS (default 3333)
+EXPOSE 4444
+
+# Menjalankan aplikasi AdonisJS
+CMD ["node", "/app/build/server.js"]
