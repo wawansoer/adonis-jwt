@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Menginstall dependencies
 RUN npm install
-
+RUN node ace migration:run
 # Menyalin semua file dari project ke working directory
 COPY . .
 
