@@ -21,7 +21,7 @@ const corsConfig: CorsConfig = {
   | you can define a function to enable/disable it on per-request basis as well.
   |
   */
-	enabled: Env.get('CORS_ENABLED', true),
+	enabled: true,
 
 	// You can also use a function that return true or false.
 	// enabled: (request) => request.url().startsWith('/api')
@@ -47,7 +47,7 @@ const corsConfig: CorsConfig = {
   */
 	// origin: '*',
 	origin: (requestOrigin) => {
-		const allowedOrigins = [Env.get('FRONTEND_URL')]
+		const allowedOrigins = ['https://carwash-wawansoers-projects.vercel.app']
 
 		if (allowedOrigins.includes(requestOrigin)) {
 			return requestOrigin
