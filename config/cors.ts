@@ -4,7 +4,7 @@
  * Feel free to let us know via PR, if you find something broken in this config
  * file.
  */
-
+import Env from '@ioc:Adonis/Core/Env'
 import type { CorsConfig } from '@ioc:Adonis/Core/Cors'
 
 const corsConfig: CorsConfig = {
@@ -20,7 +20,7 @@ const corsConfig: CorsConfig = {
   | you can define a function to enable/disable it on per-request basis as well.
   |
   */
-	enabled: true,
+	enabled: Env.get('CORS_ENABLED', true),
 
 	// You can also use a function that return true or false.
 	// enabled: (request) => request.url().startsWith('/api')
@@ -46,7 +46,7 @@ const corsConfig: CorsConfig = {
   */
 	// origin: '*',
 	origin: (requestOrigin) => {
-		const allowedOrigins = ['https://carwash-wawansoers-projects.vercel.app']
+		const allowedOrigins = [Env.get('FRONT_END_URL')]
 
 		if (allowedOrigins.includes(requestOrigin)) {
 			return requestOrigin
