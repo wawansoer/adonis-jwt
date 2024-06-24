@@ -21,7 +21,9 @@ export default Env.rules({
 	APP_NAME: Env.schema.string(),
 	DRIVE_DISK: Env.schema.enum(['local'] as const),
 	NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
+
 	FRONT_END_URL: Env.schema.string(),
+	CORS_ENABLED: Env.schema.boolean(),
 
 	DB_CONNECTION: Env.schema.string(),
 	DB_HOST: Env.schema.string({ format: 'host' }),
@@ -34,6 +36,5 @@ export default Env.rules({
 	SMTP_PORT: Env.schema.number(),
 	SMTP_USERNAME: Env.schema.string(),
 	SMTP_PASSWORD: Env.schema.string(),
-
-	CORS_ENABLED: Env.schema.boolean(),
+	EMAIL_SENDER: Env.schema.string({ format: 'email' }),
 })

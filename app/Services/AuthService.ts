@@ -2,7 +2,6 @@ import Mail from '@ioc:Adonis/Addons/Mail'
 import Env from '@ioc:Adonis/Core/Env'
 import { DateTime } from 'luxon'
 import { string } from '@ioc:Adonis/Core/Helpers'
-
 import User from '../Models/User'
 import RoleUser from '../Models/RoleUser'
 import ApiToken from '../Models/ApiToken'
@@ -81,7 +80,7 @@ export default class AuthService {
 
 		await Mail.sendLater((message) => {
 			message
-				.from(Env.get('SMTP_USERNAME'))
+				.from(Env.get('EMAIL_SENDER'))
 				.to(user.email)
 				.subject(action)
 				.htmlView('emails/welcome.edge', {
@@ -89,7 +88,7 @@ export default class AuthService {
 					url: url,
 					type_of_action: action,
 					message: msg,
-					from: Env.get('SMTP_USERNAME'),
+					from: Env.get('EMAIL_SENDER'),
 				})
 		})
 	}
